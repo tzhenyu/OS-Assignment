@@ -11,23 +11,6 @@ normal=$(tput sgr0)
 nocursor=$(tput civis)
 oncursor=$(tput cvvis)
 
-validate_input() {
-    local prompt="$1"
-    local regex="$2"
-    local error_message="$3"
-    local input
-
-    while true; do
-        echo -n "$prompt"
-        read input
-        if [[ "$input" =~ $regex ]]; then
-            echo "$input"
-            return
-        else
-            echo "$error_message"
-        fi
-    done
-}
 
 ## ADD PATRON FUNCTION
 add_patron () {
@@ -43,6 +26,8 @@ add_patron () {
 
         # echo -n "Patron ID: "; read patronID
         
+## REST Functions Here
+
 
         # Read Patron ID
         while true; do
