@@ -25,9 +25,6 @@ add_patron () {
         echo "=========================== ${oncursor} ${normal}"
 
         # echo -n "Patron ID: "; read patronID
-        
-## REST Functions Here
-
 
         # Read Patron ID
         while true; do
@@ -124,6 +121,10 @@ add_patron () {
     main_menu
 
 }
+
+
+
+## ADD OTHER FUNCTIONS HERE >>
 
 
 
