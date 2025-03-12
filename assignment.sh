@@ -182,5 +182,5 @@ main_menu () {
 
 }
 #hi there, I'm John Wick, You are??
-#hi there, me mahir the handsome
+#hi there, me mahir the handsome (latest)
 main_menu
