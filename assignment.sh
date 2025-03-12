@@ -181,5 +181,5 @@ main_menu () {
     esac
 
 }
-#hi there, I'm John Wick
+#hi there, I'm John Wick, You are??
 main_menu
