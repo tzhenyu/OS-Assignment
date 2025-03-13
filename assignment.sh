@@ -1,4 +1,9 @@
-#To run, type bash assignment.sh or ./assignment.sh
+#BACS2093 OPERATING SYSTEMS ASSIGNMENT 
+#GROUP 1
+#MEMBERS:
+#  - TAN ZHEN YU
+#  - JONATHAN HO YOON CHOON
+#  - MOHAMED MAHIR BIN HABIBULLAH
 
 #uses bash to run
 #!/bin/bash 
@@ -6,11 +11,6 @@
 #word formatting
 bold=$(tput bold)
 normal=$(tput sgr0)
-
-#turn cursor off
-nocursor=$(tput civis)
-oncursor=$(tput cvvis)
-
 
 ## ADD PATRON FUNCTION
 add_patron () {
@@ -22,7 +22,7 @@ add_patron () {
         clear
                 
         echo "${bold}Add New Patron Details Form"
-        echo "=========================== ${oncursor} ${normal}"
+        echo "=========================== ${normal}"
 
         # echo -n "Patron ID: "; read patronID
 
@@ -32,9 +32,11 @@ add_patron () {
             if [[ "$patronID" =~ ^[A-Z][0-9]{4}$ ]]; then
                 break
             else
-                echo "Invalid Patron ID."
+                echo "Invalid Patron ID. Format should be P0001"
             fi
         done
+
+        # Read Patron First Name
         while true; do
             echo -n "First Name: "; read patronFirstName
             if [[ "$patronFirstName" =~ ^[a-zA-Z]+$ ]]; then
@@ -43,22 +45,28 @@ add_patron () {
                 echo "Invalid First Name. Use letters."
             fi
         done
+
+        #Read Patron Last Name
         while true; do
             echo -n "Last Name: "; read patronLastName
             if [[ "$patronLastName" =~ ^[a-zA-Z\ ]+$ ]]; then
                 break
             else
-                echo "Invalid Last Name."
+                echo "Invalid Last Name. Use letters."
             fi
         done
+
+        #Read Patron Phone Number
         while true; do
             echo -n "Mobile Number: "; read patronPhoneNum
             if [[ "$patronPhoneNum" =~ ^[0-9]{3}-[0-9]{7,9}$ ]]; then
                 break
             else
-                echo "Invalid Phone Number."
+                echo "Invalid Phone Number. Use XXX-XXXXXXX."
             fi
         done
+
+        #Read Patron Birth Date
         while true; do
             echo -n "Birth Date (MM-DD-YYYY): "; read patronBirthDate
             if [[ $patronBirthDate =~ ^[0-9]{2}-[0-9]{2}-[0-9]{4}$ ]]; then
@@ -67,6 +75,8 @@ add_patron () {
                 echo "Invalid Birth Date."
             fi
         done
+
+        #Read Patron Membership
         while true; do
             echo -n "Membership type (Student / Public): "; read patronMembership
             if [[ "$patronMembership" == "Student" || "$patronMembership" == "Public" ]]; then
@@ -75,8 +85,10 @@ add_patron () {
                 echo "Invalid membership type. Choose 'Student' or 'Public'."
             fi
         done
+        
+        #Read Patron Join Date
         while true; do
-            echo -n "Birth Date (MM-DD-YYYY): "; read patronJoinDate
+            echo -n "Join Date (MM-DD-YYYY): "; read patronJoinDate
             if [[ $patronBirthDate =~ ^[0-9]{2}-[0-9]{2}-[0-9]{4}$ ]]; then
                 break
             else
@@ -102,8 +114,7 @@ add_patron () {
 
         echo
         echo "Press (q) to return to Patron Maintenance Menu."
-
-        echo "${nocursor}"
+        echo 
 
         while true; 
         do
@@ -119,7 +130,6 @@ add_patron () {
         done
     done
     main_menu
-
 }
 
 
@@ -143,7 +153,7 @@ main_menu () {
     clear
 
     echo "${bold}Patron Maintenance Menu"
-    echo "${normal}${nocursor}"
+    echo "${normal}"
 
     echo "A - Add New Patron Details"
     echo "S - Search a Patron (by Patron ID)"
@@ -154,9 +164,9 @@ main_menu () {
     echo "Q - Exit from Program"
 
     echo
-    echo -n "Please select a choice"
+    echo -n "Please select a choice: "
 
-    read -n1 -s choice
+    read choice
 
     case "$choice" in 
     A|a) 
@@ -172,11 +182,17 @@ main_menu () {
     J|j)
         echo "insert function here";;
     Q|q)
-        clear
-        exit
+        clear;
+        exit ;;
+    *)
+        echo  -n "Invalid choice. Please try again."
+        sleep 1
+        main_menu   
     esac
 
 }
-#Ok bossku!!
-#hi there, me mahir the handsome (latest)
 main_menu
+
+
+#mahir pushed
+# mahir tried again
