@@ -127,6 +127,16 @@ add_patron () {
 ## ADD OTHER FUNCTIONS HERE >>
 
 
+## TASK 3 SEARCH PATRON BY ID
+patron_search() {
+	clear
+	
+	echo "${bold}Search a Patron Details"
+	echo "Enter Patron ID: "
+	
+	read id
+}
+
 
 ## MAIN MENU FUNCTION
 main_menu () {
