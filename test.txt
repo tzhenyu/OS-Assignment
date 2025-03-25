@@ -1,0 +1,3 @@
+PatronID:FName:LName:MobileNum:BirthDate:Type:JoinedDate
+P1003:Loh Mian:Simon:017-88888888:03-25-2020:Public:02-01-2025 
+P1001:Muhamad Abu Bakar:Bin Rashid:014-78945612:11-29-1990:Student:01-02-2025
