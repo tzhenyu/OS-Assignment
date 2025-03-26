@@ -73,14 +73,19 @@ DeletePatron(){
     echo -n "Are you sure you want to DELETE the above Patron Details? (y)es or (q)uit: "
     read confirm
 
-    if [["$confirm" =~ ^[yY]$]]; #this statement got an issue on accepting input
+    if [ "$confirm" = "Y" ] || [ "$confirm" = "y" ]; #this statement got an issue on accepting input
     then
         #finds all details that is NOT the one that has been prompted, then save it to the temp file , later on it renames back to patron_file which is kind of overwriting
         grep -v "^$patron_id:" "$patron_file" > temp.txt && mv temp.txt "$patron_file"
         echo "Patron details deleted successfully."
-    else
-        echo "Action Cancelled"
-        exit 1
+    elif [ "$confirm" = "Q" ] || [ "$confirm" = "q" ];
+    then
+        echo "Action Cancelled, Returning to the menu"
+        return
+
+    else 
+        echo "Invalid choice, returning to the menu"
+        return
     fi
     
     
