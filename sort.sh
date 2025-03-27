@@ -6,16 +6,16 @@ sortById(){
     mapfile -t patron < patron.txt
 
     #a freaking header
-    header="${patron[0]}"
-
-    # Extract the data [array[@]:start:end]
-    datas=("${patron[@]:1}")
+    echo -e "PatronID\tFName\tLName\tMobileNum\tBirthDate\tType\tJoinedDate"
+    echo "-----------------------------------------------------------------------"
 
     # Sort the array by PatronID (first field) using sort
-    sorted=$(printf "%s\n" "${datas[@]}" | sort -t ':' -k1)
+    sorted=$(printf "%s\n" "${patron[@]:1}"| sort -t ':' -k1)
 
-    echo "$header"
-    echo "$sorted"
+    while IFS=':' read -r id fname lname mobile dob type joined; 
+    do
+        echo -e "$id\t$fname\t$lname\t$mobile\t$dob\t$type\t$joined"
+    done <<< $sorted
 
 }
 
@@ -23,27 +23,33 @@ sortByDate(){
     #read the file from patron into array form (the -t is to remove the new line occurence or it will mess up the indexes)
     mapfile -t patron < patron.txt
     
-    #a freaking header
-    header="${patron[0]}"
+     # Print the header with spacing
+    echo -e "PatronID\tFName\tLName\tMobileNum\tBirthDate\tType\tJoinedDate"
+    echo "-----------------------------------------------------------------------"
 
-    # Extract the data [array[@]:start:end]
-    datas=("${patron[@]:1}")
+    # Sort the data and format it
+    sorted_data=$(printf "%s\n" "${patron[@]:1}" | sort -t':' -k7.7,7.10n -k7.4,7.5n -k7.1,7.2n)
+     
+    while IFS=':' read -r id fname lname mobile dob type joined; 
+    do
+        echo -e "$id\t$fname\t$lname\t$mobile\t$dob\t$type\t$joined"
+    done <<< $sorted_data
 
-    # Sort the array by PatronID (first field) using sort
-    sorted=$(printf "%s\n" "${datas[@]}" | sort -t':' -k7,7 -k7.4,7.5n -k7.7,7.10n)
-
-    echo "$header"
-    echo "$sorted"
 }
+    
 
-DeletePatron(){
+
+DeletePatron(){ #functioning very well (insyallah)
 
     patron_file="test.txt"
 
-    echo "DELETE PATRON DETAILS"
-    echo -n "ENTER PATRON ID: "
+    #print out the header and prompt
+    echo -e "\n\n\t\t\t\tDelete a Patron Details"
+    echo -e "\t\t\t\t=======================\n"
+    echo -n "Enter Patron ID: "
     read patron_id
 
+    #saves the file to a variable
     patron_details=$(grep "^$patron_id" "$patron_file")
 
     if [ -z "$patron_details" ]; 
@@ -73,7 +79,7 @@ DeletePatron(){
     echo -n "Are you sure you want to DELETE the above Patron Details? (y)es or (q)uit: "
     read confirm
 
-    if [ "$confirm" = "Y" ] || [ "$confirm" = "y" ]; #this statement got an issue on accepting input
+    if [ "$confirm" = "Y" ] || [ "$confirm" = "y" ]; 
     then
         #finds all details that is NOT the one that has been prompted, then save it to the temp file , later on it renames back to patron_file which is kind of overwriting
         grep -v "^$patron_id:" "$patron_file" > temp.txt && mv temp.txt "$patron_file"
@@ -91,4 +97,7 @@ DeletePatron(){
     
 }
 
-DeletePatron
+
+#do the second phase of formatting and directly add it to assignment.sh file to make it fully functional
+
+#just > and >> so to file (add user prompt, cat and touch)
