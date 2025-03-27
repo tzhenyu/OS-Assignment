@@ -132,11 +132,62 @@ add_patron () {
     main_menu
 }
 
+##DELETE PATRON FUNCTION
+DeletePatron(){ #functioning very well (insyallah)
+
+    patron_file="test.txt"
+
+    #print out the header and prompt
+    echo -e "\n\n\t\t\t\tDelete a Patron Details"
+    echo -e "\t\t\t\t=======================\n"
+    echo -n "Enter Patron ID: "
+    read patron_id
+
+    #saves the file to a variable
+    patron_details=$(grep "^$patron_id" "$patron_file")
+
+    if [ -z "$patron_details" ]; 
+    then
+        echo "Patron ID not found! Try Again"
+        DeletePatron;
+    fi
+
+    id=$(echo "$patron_details" | cut -d':' -f1)
+    fname=$(echo "$patron_details" | cut -d':' -f2)
+    lname=$(echo "$patron_details" | cut -d':' -f3)
+    mobile=$(echo "$patron_details" | cut -d':' -f4)
+    dob=$(echo "$patron_details" | cut -d':' -f5)
+    type=$(echo "$patron_details" | cut -d':' -f6)
+    joined=$(echo "$patron_details" | cut -d':' -f7)
 
 
-## ADD OTHER FUNCTIONS HERE >>
+    echo "---------------------------------------"
+    echo " First Name: $fname"
+    echo " Last Name: $lname"
+    echo " Mobile Number: $mobile"
+    echo " Birth Date (MM-DD-YYYY): $dob"
+    echo " Membership Type: $type"
+    echo " Joined Date (MM-DD-YYYY): $joined"
+    echo "---------------------------------------"
 
+    echo -n "Are you sure you want to DELETE the above Patron Details? (y)es or (q)uit: "
+    read confirm
 
+    if [ "$confirm" = "Y" ] || [ "$confirm" = "y" ]; 
+    then
+        #finds all details that is NOT the one that has been prompted, then save it to the temp file , later on it renames back to patron_file which is kind of overwriting
+        grep -v "^$patron_id:" "$patron_file" > temp.txt && mv temp.txt "$patron_file"
+        echo "Patron details deleted successfully."
+    elif [ "$confirm" = "Q" ] || [ "$confirm" = "q" ];
+    then
+        echo "Action Cancelled, Returning to the menu"
+        main_menu;
+
+    else 
+        echo "Invalid choice, returning to the menu"
+        main_menu;
+    fi
+}
 
 ## MAIN MENU FUNCTION
 main_menu () {
@@ -148,6 +199,7 @@ main_menu () {
     echo "A - Add New Patron Details"
     echo "S - Search a Patron (by Patron ID)"
     echo "U - Update a Patron Details"
+    echo "D - Delete a Patron Details"
     echo "L - Sort Patrons by Last Name"
     echo "P - Sort Patrons by Patron ID"
     echo "J - Sort Patrons by Joined Date (Newest to Oldest Date)"
@@ -165,6 +217,8 @@ main_menu () {
         echo "insert function here";;
     U|u)
         echo "insert function here";;
+    D|d)
+        DeletePatron;;
     L|l)
         echo "insert function here";;
     P|p)
@@ -183,6 +237,4 @@ main_menu () {
 }
 main_menu
 
-#pee
-#mahir pushed
-# mahir tried again
+
