@@ -178,13 +178,17 @@ DeletePatron(){ #functioning very well (insyallah)
         #finds all details that is NOT the one that has been prompted, then save it to the temp file , later on it renames back to patron_file which is kind of overwriting
         grep -v "^$patron_id:" "$patron_file" > temp.txt && mv temp.txt "$patron_file"
         echo "Patron details deleted successfully."
+        sleep 1.5
+        main_menu;
     elif [ "$confirm" = "Q" ] || [ "$confirm" = "q" ];
     then
         echo "Action Cancelled, Returning to the menu"
+        sleep 1.5
         main_menu;
 
     else 
         echo "Invalid choice, returning to the menu"
+        sleep 1.5
         main_menu;
     fi
 }
@@ -210,7 +214,7 @@ sortById()
     done <<< $sorted
 
     echo -e " Press (q) to return to Patron Maintenance Menu.\n"
-    echo -e "Would you like to export the report as ASCII text file? (y)es (q)uit:"
+    echo -n "Would you like to export the report as ASCII text file? (y)es (q)uit:"
 
     read -r response
 
@@ -266,7 +270,7 @@ sortByDate()
     done <<< $sorted_data
 
     echo -e " Press (q) to return to Patron Maintenance Menu.\n"
-    echo -e "Would you like to export the report as ASCII text file? (y)es (q)uit:"
+    echo -n "Would you like to export the report as ASCII text file? (y)es (q)uit:"
 
     read -r response
 
@@ -330,12 +334,15 @@ main_menu () {
     U|u)
         echo "insert function here";;
     D|d)
+        clear;
         DeletePatron;;
     L|l)
         echo "insert function here";;
     P|p)
+        clear;
         sortById;;
     J|j)
+        clear;
         sortByDate;;
     Q|q)
         clear;
