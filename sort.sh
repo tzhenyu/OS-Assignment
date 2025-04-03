@@ -60,7 +60,7 @@ sortByDate()
     mapfile -t patron < patron.txt
     
      # Print the header with spacing
-    echo -e "PatronID\tFirst Name\tLast Name\tMobile Number\tBirth Date\tType\tJoined Date"
+    printf "%-10s %-20s %-17s %-15s %-10s\n" "PatronID" "First Name" "Last Name" "Mobile Number" "Birth Date"
     echo "---------------------------------------------------------------------------------------------------"
 
     outputFile="SortByDate.txt"
@@ -70,7 +70,7 @@ sortByDate()
      
     while IFS=':' read -r id fname lname mobile dob type joined; 
     do
-        echo -e "$id\t$fname\t$lname\t$mobile\t$dob\t$type\t$joined"
+        printf "%-10s %-20s %-17s %-15s %-12s %-8s %-12s\n" "$id" "$fname" "$lname" "$mobile" "$dob"
     done <<< $sorted_data
 
     echo -e " Press (q) to return to Patron Maintenance Menu.\n"
@@ -80,7 +80,7 @@ sortByDate()
 
     if [ $response = "y" ] || [ $response = "Y" ];
     then
-        echo -e "PatronID\tFirst Name\tLast Name\tMobile Number\tBirth Date\tType\tJoined Date" > "$outputFile"
+        printf "%-14s %-12s %-12s %-15s %-10s\n" "PatronID" "First Name" "Last Name" "Mobile Number" "Birth Date" > "$outputFile"
         echo -e "----------------------------------------------------------------------------------" >>  "$outputFile"
 
         ##Sort the array by PatronID (first field) using sort based on MM/DD/YYYY
@@ -88,7 +88,7 @@ sortByDate()
 
         while IFS=':' read -r id fname lname mobile dob type joined ; 
         do
-            echo -e "$id\t$fname\t$lname\t$mobile\t$dob\t$type\t$joined" >> "$outputFile"
+           printf "%-10s %-12s %-12s %-15s %-12s %-8s %-12s\n" "$id" "$fname" "$lname" "$mobile" "$dob" "$type" "$joined" >> "$outputFile"
         done <<< "$sorted_data"
 
         echo "Exported to $outputFile successfully."

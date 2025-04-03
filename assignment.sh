@@ -200,8 +200,8 @@ sortById()
     mapfile -t patron < patron.txt
 
     #a freaking header
-    echo -e "PatronID\tFirst Name\tLast Name\tMobile Number\tBirth Date"
-    echo "----------------------------------------------------------------------------------"
+    printf "%-10s %-20s %-17s %-15s %-10s\n" "PatronID" "First Name" "Last Name" "Mobile Number" "Birth Date"
+    echo "---------------------------------------------------------------------------------"
 
     outputFile="SortByID.txt"
 
@@ -210,8 +210,10 @@ sortById()
 
     while IFS=':' read -r id fname lname mobile dob _ _ ; 
     do
-        echo -e "$id\t$fname\t$lname\t$mobile\t$dob\t"
+        printf "%-10s %-20s %-17s %-15s %-12s %-8s %-12s\n" "$id" "$fname" "$lname" "$mobile" "$dob"
     done <<< $sorted
+
+    echo -e "\n"
 
     echo -e " Press (q) to return to Patron Maintenance Menu.\n"
     echo -n "Would you like to export the report as ASCII text file? (y)es (q)uit:"
@@ -220,16 +222,17 @@ sortById()
 
     if [ $response = "y" ] || [ $response = "Y" ];
     then
-        echo -e "PatronID\tFirst Name\tLast Name\tMobile Number\tBirth Date" > "$outputFile"
-        echo -e "----------------------------------------------------------------------------------" >>  "$outputFile"
+        printf "%-10s %-20s %-17s %-15s %-10s\n" "PatronID" "First Name" "Last Name" "Mobile Number" "Birth Date" > "$outputFile"
+        echo -e "---------------------------------------------------------------------------------" >>  "$outputFile"
 
         ##Sort the array by PatronID (first field) using sort
         sorted=$(printf "%s\n" "${patron[@]:1}"| sort -t ':' -k1 )
 
         while IFS=':' read -r id fname lname mobile dob _ _ ; 
         do
-            echo -e "$id\t$lname\t$fname\t$mobile\t$dob" >> "$outputFile"
+            printf "%-10s %-20s %-17s %-15s %-12s %-8s %-12s\n" "$id" "$fname" "$lname" "$mobile" "$dob" >> "$outputFile"
         done <<< "$sorted"
+        echo -e "\n"
 
         echo "Exported to $outputFile successfully."
 
@@ -256,8 +259,8 @@ sortByDate()
     mapfile -t patron < patron.txt
     
      # Print the header with spacing
-    echo -e "PatronID\tFirst Name\tLast Name\tMobile Number\tBirth Date\tType\tJoined Date"
-    echo "---------------------------------------------------------------------------------------------------"
+    printf "%-10s %-20s %-17s %-15s %-10s\n" "PatronID" "First Name" "Last Name" "Mobile Number" "Date Joined"
+    echo "-----------------------------------------------------------------------------"
 
     outputFile="SortByDate.txt"
 
@@ -266,8 +269,9 @@ sortByDate()
      
     while IFS=':' read -r id fname lname mobile dob type joined; 
     do
-        echo -e "$id\t$fname\t$lname\t$mobile\t$dob\t$type\t$joined"
+        printf "%-10s %-20s %-17s %-15s %-12s %-8s %-12s\n" "$id" "$fname" "$lname" "$mobile" "$joined"
     done <<< $sorted_data
+    echo -e "\n"
 
     echo -e " Press (q) to return to Patron Maintenance Menu.\n"
     echo -n "Would you like to export the report as ASCII text file? (y)es (q)uit:"
@@ -276,16 +280,17 @@ sortByDate()
 
     if [ $response = "y" ] || [ $response = "Y" ];
     then
-        echo -e "PatronID\tFirst Name\tLast Name\tMobile Number\tBirth Date\tType\tJoined Date" > "$outputFile"
-        echo -e "----------------------------------------------------------------------------------" >>  "$outputFile"
+        printf "%-10s %-20s %-17s %-15s %-10s\n" "PatronID" "First Name" "Last Name" "Mobile Number" "Date Joined" > "$outputFile"
+        echo -e "-----------------------------------------------------------------------------" >>  "$outputFile"
 
         ##Sort the array by PatronID (first field) using sort based on MM/DD/YYYY
         sorted_data=$(printf "%s\n" "${patron[@]:1}" | sort -t':' -k7.7,7.10n -k7.1,7.2n -k7.4,7.5n )
 
         while IFS=':' read -r id fname lname mobile dob type joined ; 
         do
-            echo -e "$id\t$fname\t$lname\t$mobile\t$dob\t$type\t$joined" >> "$outputFile"
+             printf "%-10s %-20s %-17s %-15s %-12s %-8s %-12s\n" "$id" "$fname" "$lname" "$mobile" "$joined" >> "$outputFile"
         done <<< "$sorted_data"
+        echo -e "\n"
 
         echo "Exported to $outputFile successfully."
 
