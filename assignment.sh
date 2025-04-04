@@ -15,13 +15,11 @@ normal=$(tput sgr0)
 ## ADD PATRON FUNCTION
 ##TODO MENU BOLD FORMATTING
 add_patron () {
-
     choice=y
 
     while [ "$choice" = "y" ]
     do
         clear
-                
         echo "${bold}Add New Patron Details Form"
         echo "=========================== ${normal}"
 
@@ -29,71 +27,112 @@ add_patron () {
         #TODO: VALIDATE IF PATRON ID EXISTS
         # Read Patron ID
         while true; do
-            echo -n "Patron ID: "; read patronID
+
+            echo -n "Patron ID                          : "
+            read patronID
+
+            # Check if the ID matches the format P0001
             if [[ "$patronID" =~ ^[A-Z][0-9]{4}$ ]]; then
-                break
+                # Check if patron.txt exists before checking for duplicates
+                if [[ -f patron.txt ]] && grep -q "^$patronID:" patron.txt; then
+                    echo "${bold}Patron ID already exists!"
+                    echo -n "${normal}Press Enter to try again."
+                    read
+                    tput cuu 3 # move cursor up 2 lines
+                    tput ed    # clear everything below
+                else
+                    break
+                fi
             else
-                echo "Invalid Patron ID. Format should be P0001"
+                echo "${bold}Invalid Patron ID! Format should be P0001."
+                echo -n "${normal}Press Enter to try again."
+                read
+                tput cuu 3 # move cursor up 3 lines
+                tput ed    # clear everything below
             fi
         done
 
         # Read Patron First Name
         while true; do
-            echo -n "First Name: "; read patronFirstName
+            echo -n "First Name                         : "; read patronFirstName
             if [[ "$patronFirstName" =~ ^[a-zA-Z]+$ ]]; then
                 break
             else
-                echo "Invalid First Name. Use letters."
+                echo "${bold}Invalid First Name! Use letters."
+                echo -n "${normal}Press Enter to try again."
+                read
+                tput cuu 3 # move cursor up 3 lines
+                tput ed    # clear everything below
             fi
         done
 
         #Read Patron Last Name
         while true; do
-            echo -n "Last Name: "; read patronLastName
+            echo -n "Last Name                          : "; read patronLastName
             if [[ "$patronLastName" =~ ^[a-zA-Z\ ]+$ ]]; then
                 break
             else
-                echo "Invalid Last Name. Use letters."
+                echo "${bold}Invalid Last Name! Use letters."
+                echo -n "${normal}Press Enter to try again."
+                read
+                tput cuu 3 # move cursor up 3 lines
+                tput ed    # clear everything below
             fi
         done
 
         #Read Patron Phone Number
         while true; do
-            echo -n "Mobile Number: "; read patronPhoneNum
+            echo -n "Mobile Number                      : "; read patronPhoneNum
             if [[ "$patronPhoneNum" =~ ^[0-9]{3}-[0-9]{7,9}$ ]]; then
                 break
             else
-                echo "Invalid Phone Number. Use XXX-XXXXXXX."
+                echo "${bold}Invalid Phone Number! Use XXX-XXXXXXX."
+                echo -n "${normal}Press Enter to try again."
+                read
+                tput cuu 3 # move cursor up 3 lines
+                tput ed    # clear everything below
             fi
         done
 
         #Read Patron Birth Date
         while true; do
-            echo -n "Birth Date (MM-DD-YYYY): "; read patronBirthDate
+            echo -n "Birth Date (MM-DD-YYYY)            : "; read patronBirthDate
             if [[ $patronBirthDate =~ ^[0-9]{2}-[0-9]{2}-[0-9]{4}$ ]]; then
                 break
             else
-                echo "Invalid Birth Date."
+                echo "${bold}Invalid Birth Date!"
+                echo -n "${normal}Press Enter to try again."
+                read
+                tput cuu 3 # move cursor up 3 lines
+                tput ed    # clear everything below
             fi
         done
 
         #Read Patron Membership
         while true; do
-            echo -n "Membership type (Student / Public): "; read patronMembership
+            echo -n "Membership type (Student / Public) : "; read patronMembership
             if [[ "$patronMembership" == "Student" || "$patronMembership" == "Public" ]]; then
                 break
             else
-                echo "Invalid membership type. Choose 'Student' or 'Public'."
+                echo "${bold}Invalid membership type! Choose 'Student' or 'Public'."
+                echo -n "${normal}Press Enter to try again."
+                read
+                tput cuu 3 # move cursor up 3 lines
+                tput ed    # clear everything below
             fi
         done
         
         #Read Patron Join Date
         while true; do
-            echo -n "Join Date (MM-DD-YYYY): "; read patronJoinDate
+            echo -n "Join Date (MM-DD-YYYY)             : "; read patronJoinDate
             if [[ $patronBirthDate =~ ^[0-9]{2}-[0-9]{2}-[0-9]{4}$ ]]; then
                 break
             else
-                echo "Invalid Join Date."
+                echo "${bold}Invalid Join Date!"
+                echo -n "${normal}Press Enter to try again."
+                read
+                tput cuu 3 # move cursor up 3 lines
+                tput ed    # clear everything below
             fi
         done
 
@@ -125,8 +164,11 @@ add_patron () {
                 echo  # Move to a new line before breaking
                 break
             else
-                echo -ne "\rInvalid choice!                                              "
-                sleep 1  # Brief delay so user sees the message
+                echo "${bold}Invalid choice!"
+                echo -n "${normal}Press Enter to try again."
+                read
+                tput cuu 3 # move cursor up 3 lines
+                tput ed    # clear everything below
             fi
         done
     done
