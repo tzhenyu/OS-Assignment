@@ -1,4 +1,10 @@
 PatronID:FName:LName:MobileNum:BirthDate:Type:JoinedDate
+<<<<<<< HEAD
+P1000:Chai Lim:Chin:012-12345678:10-20-1970:Student:01-10-2025 
+P1003:Loh Mian:Simon:017-88888888:03-25-2020:Public:02-01-2025 
+P1001:Muhamad Abu Bakar:Bin Rashid:014-78945612:11-29-1990:Student:01-02-2025
+P0001:Mohamed:Mahir:010-3411979:06-13-2005:Student:03-13-2025
+=======
 P1000:dd:dd:011-1111111:03-15-1222:Student:04-04-2025
 P0002:a:a:011-20202020:22-22-2222:Student:04-04-2025
 P1002:clear:clear:011-1111111:22-22-2222:Student:04-04-2025
@@ -10,3 +16,4 @@ P1001:tan:zhen yu:011-1111111:22-22-2222:Student:04-04-2025
 P1102:tan:zheny:011-1111111:22-22-2222:Student:04-04-2025
 P2022:a:D:011-1111111:22-22-2222:Student:04-04-2025
 P3333:a:d:011-1111111:22-22-2222:Student:04-04-2025
+>>>>>>> origin/main

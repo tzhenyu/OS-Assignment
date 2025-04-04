@@ -13,6 +13,7 @@ bold=$(tput bold)
 normal=$(tput sgr0)
 
 ## ADD PATRON FUNCTION
+##TODO MENU BOLD FORMATTING
 add_patron () {
     choice=y
 
@@ -20,8 +21,11 @@ add_patron () {
     do
         clear
         echo "${bold}Add New Patron Details Form"
-        echo "${normal}"
+        echo "=========================== ${normal}"
 
+        # echo -n "Patron ID: "; read patronID
+        #TODO: VALIDATE IF PATRON ID EXISTS
+        # Read Patron ID
         while true; do
 
             echo -n "Patron ID                          : "
@@ -154,8 +158,8 @@ add_patron () {
 
         while true; 
         do
-            echo -n "Add another new patron details? (y)es or (q)uit: "
-            read choice
+            echo -ne "\rAdd another new patron details? (y)es or (q)uit: "
+            read -r choice
             if [[ "$choice" == "y" || "$choice" == "q" ]]; then
                 echo  # Move to a new line before breaking
                 break
@@ -171,11 +175,184 @@ add_patron () {
     main_menu
 }
 
+##DELETE PATRON FUNCTION
+DeletePatron(){ #functioning very well (insyallah)
+
+    patron_file="patron.txt"
+
+    #print out the header and prompt
+    echo -e "\n\n\t\t\t\tDelete a Patron Details"
+    echo -e "\t\t\t\t=======================\n"
+    echo -n "Enter Patron ID: "
+    read patron_id
+
+    #saves the file to a variable
+    patron_details=$(grep "^$patron_id" "$patron_file")
+
+    if [ -z "$patron_details" ]; 
+    then
+        echo -n "Patron ID not found! Try Again"
+        sleep 1
+        clear
+        DeletePatron;
+    fi
+
+    id=$(echo "$patron_details" | cut -d':' -f1)
+    fname=$(echo "$patron_details" | cut -d':' -f2)
+    lname=$(echo "$patron_details" | cut -d':' -f3)
+    mobile=$(echo "$patron_details" | cut -d':' -f4)
+    dob=$(echo "$patron_details" | cut -d':' -f5)
+    type=$(echo "$patron_details" | cut -d':' -f6)
+    joined=$(echo "$patron_details" | cut -d':' -f7)
 
 
-## ADD OTHER FUNCTIONS HERE >>
+    echo "---------------------------------------"
+    echo " First Name: $fname"
+    echo " Last Name: $lname"
+    echo " Mobile Number: $mobile"
+    echo " Birth Date (MM-DD-YYYY): $dob"
+    echo " Membership Type: $type"
+    echo " Joined Date (MM-DD-YYYY): $joined"
+    echo "---------------------------------------"
 
+    echo -n "Are you sure you want to DELETE the above Patron Details? (y)es or (q)uit: "
+    read confirm
 
+    if [ "$confirm" = "Y" ] || [ "$confirm" = "y" ]; 
+    then
+        #finds all details that is NOT the one that has been prompted, then save it to the temp file , later on it renames back to patron_file which is kind of overwriting
+        grep -v "^$patron_id:" "$patron_file" > temp.txt && mv temp.txt "$patron_file"
+        echo -n "Patron details deleted successfully."
+        sleep 1.5
+        main_menu;
+    elif [ "$confirm" = "Q" ] || [ "$confirm" = "q" ];
+    then
+        echo -n "Action Cancelled, Returning to the menu"
+        sleep 1.5
+        main_menu;
+
+    else 
+        echo -n "Invalid choice, returning to the menu"
+        sleep 1.5
+        main_menu;
+    fi
+}
+
+##SORT USER BY ID
+sortById()
+{
+    #read the file from patron into array form
+    mapfile -t patron < patron.txt
+
+    #a freaking header
+    printf "%-11s %-20s %-20s %-15s %-10s\n" "Patron ID" "First Name" "Last Name" "Mobile Number" "Birth Date"
+    echo "---------------------------------------------------------------------------------"
+
+    outputFile="SortByID.txt"
+
+    # Sort the array by PatronID (first field) using sort
+    sorted=$(printf "%s\n" "${patron[@]:1}"| sort -t ':' -k1)
+
+    while IFS=':' read -r id fname lname mobile dob _ _ ; 
+    do
+        printf "%-11s %-20s %-20s %-15s %-12s %-8s %-12s\n" "$id" "$fname" "$lname" "$mobile" "$dob"
+    done <<< $sorted
+
+    echo -e "\n"
+    echo -e "Press (q) to return to Patron Maintenance Menu.\n"
+    echo -n "Would you like to export the report as ASCII text file? (y)es (q)uit: "
+
+    read -r response
+
+    if [ $response = "y" ] || [ $response = "Y" ];
+    then
+        printf "%-11s %-20s %-20s %-15s %-10s\n" "Patron ID" "First Name" "Last Name" "Mobile Number" "Birth Date" > "$outputFile"
+        echo -e "---------------------------------------------------------------------------------" >>  "$outputFile"
+
+        ##Sort the array by PatronID (first field) using sort
+        sorted=$(printf "%s\n" "${patron[@]:1}"| sort -t ':' -k1 )
+
+        while IFS=':' read -r id fname lname mobile dob _ _ ; 
+        do
+            printf "%-11s %-20s %-20s %-15s %-10s\n" "$id" "$fname" "$lname" "$mobile" "$dob" >> "$outputFile"
+        done <<< "$sorted"
+
+        echo -e "\n"
+        echo -n "Exported to $outputFile successfully."
+
+        sleep 1.5
+        main_menu
+
+    elif [ $response = "q" ] || [ $response = "Q" ];
+    then 
+        echo -n "Returning to Main Menu"
+        sleep 1
+        main_menu;
+    else
+        echo -n "Invalid choice, returning to main menu"
+        sleep 1
+        main_menu;
+    fi
+
+}
+
+##SORT BY DATE
+sortByDate()
+{
+    #read the file from patron into array form (the -t is to remove the new line occurence or it will mess up the indexes)
+    mapfile -t patron < patron.txt
+    
+     # Print the header with spacing
+    printf "%-10s %-20s %-17s %-15s %-10s\n" "Patron ID" "First Name" "Last Name" "Mobile Number" "Date Joined"
+    echo "-----------------------------------------------------------------------------"
+
+    outputFile="SortByDate.txt"
+
+    # Sort the data and format it
+    sorted_data=$(printf "%s\n" "${patron[@]:1}" | sort -t':' -k7.7,7.10n -k7.4,7.5n -k7.1,7.2n )
+     
+    while IFS=':' read -r id fname lname mobile dob type joined; 
+    do
+        printf "%-10s %-20s %-17s %-15s %-12s %-8s %-12s\n" "$id" "$fname" "$lname" "$mobile" "$joined"
+    done <<< $sorted_data
+    echo -e "\n"
+
+    echo -e " Press (q) to return to Patron Maintenance Menu.\n"
+    echo -n "Would you like to export the report as ASCII text file? (y)es (q)uit: "
+
+    read -r response
+
+    if [ $response = "y" ] || [ $response = "Y" ];
+    then
+        printf "%-10s %-20s %-17s %-15s %-10s\n" "Patron ID" "First Name" "Last Name" "Mobile Number" "Date Joined" > "$outputFile"
+        echo -e "-----------------------------------------------------------------------------" >>  "$outputFile"
+
+        ##Sort the array by PatronID (first field) using sort based on MM/DD/YYYY
+        sorted_data=$(printf "%s\n" "${patron[@]:1}" | sort -t':' -k7.7,7.10n -k7.1,7.2n -k7.4,7.5n )
+
+        while IFS=':' read -r id fname lname mobile dob type joined ; 
+        do
+             printf "%-10s %-20s %-17s %-15s %-12s %-8s %-12s\n" "$id" "$fname" "$lname" "$mobile" "$joined" >> "$outputFile"
+        done <<< "$sorted_data"
+        echo -e "\n"
+
+        echo -n "Exported to $outputFile successfully."
+
+        sleep 1.5
+        main_menu
+
+    elif [ $response = "q" ] || [ $response = "Q" ];
+    then 
+        echo -n "Returning to Main Menu"
+        sleep 1
+        main_menu
+    else
+        echo -n "Invalid choice, returning to main menu"
+        sleep 1
+        main_menu
+    fi
+
+}
 
 ## MAIN MENU FUNCTION
 main_menu () {
@@ -187,6 +364,7 @@ main_menu () {
     echo "A - Add New Patron Details"
     echo "S - Search a Patron (by Patron ID)"
     echo "U - Update a Patron Details"
+    echo "D - Delete a Patron Details"
     echo "L - Sort Patrons by Last Name"
     echo "P - Sort Patrons by Patron ID"
     echo "J - Sort Patrons by Joined Date (Newest to Oldest Date)"
@@ -204,12 +382,17 @@ main_menu () {
         echo "insert function here";;
     U|u)
         echo "insert function here";;
+    D|d)
+        clear;
+        DeletePatron;;
     L|l)
         echo "insert function here";;
     P|p)
-        echo "insert function here";;
+        clear;
+        sortById;;
     J|j)
-        echo "insert function here";;
+        clear;
+        sortByDate;;
     Q|q)
         clear;
         exit ;;
@@ -223,5 +406,3 @@ main_menu () {
 main_menu
 
 
-#mahir pushed
-# mahir tried again
