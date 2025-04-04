@@ -13,6 +13,7 @@ bold=$(tput bold)
 normal=$(tput sgr0)
 
 ## ADD PATRON FUNCTION
+##TODO MENU BOLD FORMATTING
 add_patron () {
 
     choice=y
@@ -25,7 +26,7 @@ add_patron () {
         echo "=========================== ${normal}"
 
         # echo -n "Patron ID: "; read patronID
-
+        #TODO: VALIDATE IF PATRON ID EXISTS
         # Read Patron ID
         while true; do
             echo -n "Patron ID: "; read patronID
@@ -119,7 +120,7 @@ add_patron () {
         while true; 
         do
             echo -ne "\rAdd another new patron details? (y)es or (q)uit: "
-            read -n1 -s choice
+            read -r choice
             if [[ "$choice" == "y" || "$choice" == "q" ]]; then
                 echo  # Move to a new line before breaking
                 break
@@ -148,7 +149,9 @@ DeletePatron(){ #functioning very well (insyallah)
 
     if [ -z "$patron_details" ]; 
     then
-        echo "Patron ID not found! Try Again"
+        echo -n "Patron ID not found! Try Again"
+        sleep 1
+        clear
         DeletePatron;
     fi
 
@@ -177,17 +180,17 @@ DeletePatron(){ #functioning very well (insyallah)
     then
         #finds all details that is NOT the one that has been prompted, then save it to the temp file , later on it renames back to patron_file which is kind of overwriting
         grep -v "^$patron_id:" "$patron_file" > temp.txt && mv temp.txt "$patron_file"
-        echo "Patron details deleted successfully."
+        echo -n "Patron details deleted successfully."
         sleep 1.5
         main_menu;
     elif [ "$confirm" = "Q" ] || [ "$confirm" = "q" ];
     then
-        echo "Action Cancelled, Returning to the menu"
+        echo -n "Action Cancelled, Returning to the menu"
         sleep 1.5
         main_menu;
 
     else 
-        echo "Invalid choice, returning to the menu"
+        echo -n "Invalid choice, returning to the menu"
         sleep 1.5
         main_menu;
     fi
@@ -200,7 +203,7 @@ sortById()
     mapfile -t patron < patron.txt
 
     #a freaking header
-    printf "%-10s %-20s %-17s %-15s %-10s\n" "PatronID" "First Name" "Last Name" "Mobile Number" "Birth Date"
+    printf "%-11s %-20s %-20s %-15s %-10s\n" "Patron ID" "First Name" "Last Name" "Mobile Number" "Birth Date"
     echo "---------------------------------------------------------------------------------"
 
     outputFile="SortByID.txt"
@@ -210,19 +213,18 @@ sortById()
 
     while IFS=':' read -r id fname lname mobile dob _ _ ; 
     do
-        printf "%-10s %-20s %-17s %-15s %-12s %-8s %-12s\n" "$id" "$fname" "$lname" "$mobile" "$dob"
+        printf "%-11s %-20s %-20s %-15s %-12s %-8s %-12s\n" "$id" "$fname" "$lname" "$mobile" "$dob"
     done <<< $sorted
 
     echo -e "\n"
-
-    echo -e " Press (q) to return to Patron Maintenance Menu.\n"
-    echo -n "Would you like to export the report as ASCII text file? (y)es (q)uit:"
+    echo -e "Press (q) to return to Patron Maintenance Menu.\n"
+    echo -n "Would you like to export the report as ASCII text file? (y)es (q)uit: "
 
     read -r response
 
     if [ $response = "y" ] || [ $response = "Y" ];
     then
-        printf "%-10s %-20s %-17s %-15s %-10s\n" "PatronID" "First Name" "Last Name" "Mobile Number" "Birth Date" > "$outputFile"
+        printf "%-11s %-20s %-20s %-15s %-10s\n" "Patron ID" "First Name" "Last Name" "Mobile Number" "Birth Date" > "$outputFile"
         echo -e "---------------------------------------------------------------------------------" >>  "$outputFile"
 
         ##Sort the array by PatronID (first field) using sort
@@ -230,22 +232,22 @@ sortById()
 
         while IFS=':' read -r id fname lname mobile dob _ _ ; 
         do
-            printf "%-10s %-20s %-17s %-15s %-12s %-8s %-12s\n" "$id" "$fname" "$lname" "$mobile" "$dob" >> "$outputFile"
+            printf "%-11s %-20s %-20s %-15s %-10s\n" "$id" "$fname" "$lname" "$mobile" "$dob" >> "$outputFile"
         done <<< "$sorted"
-        echo -e "\n"
 
-        echo "Exported to $outputFile successfully."
+        echo -e "\n"
+        echo -n "Exported to $outputFile successfully."
 
         sleep 1.5
-        
         main_menu
+
     elif [ $response = "q" ] || [ $response = "Q" ];
     then 
-        echo "Returning to Main Menu"
+        echo -n "Returning to Main Menu"
         sleep 1
         main_menu;
     else
-        echo "invalid choice, returning to main menu"
+        echo -n "Invalid choice, returning to main menu"
         sleep 1
         main_menu;
     fi
@@ -259,7 +261,7 @@ sortByDate()
     mapfile -t patron < patron.txt
     
      # Print the header with spacing
-    printf "%-10s %-20s %-17s %-15s %-10s\n" "PatronID" "First Name" "Last Name" "Mobile Number" "Date Joined"
+    printf "%-10s %-20s %-17s %-15s %-10s\n" "Patron ID" "First Name" "Last Name" "Mobile Number" "Date Joined"
     echo "-----------------------------------------------------------------------------"
 
     outputFile="SortByDate.txt"
@@ -274,13 +276,13 @@ sortByDate()
     echo -e "\n"
 
     echo -e " Press (q) to return to Patron Maintenance Menu.\n"
-    echo -n "Would you like to export the report as ASCII text file? (y)es (q)uit:"
+    echo -n "Would you like to export the report as ASCII text file? (y)es (q)uit: "
 
     read -r response
 
     if [ $response = "y" ] || [ $response = "Y" ];
     then
-        printf "%-10s %-20s %-17s %-15s %-10s\n" "PatronID" "First Name" "Last Name" "Mobile Number" "Date Joined" > "$outputFile"
+        printf "%-10s %-20s %-17s %-15s %-10s\n" "Patron ID" "First Name" "Last Name" "Mobile Number" "Date Joined" > "$outputFile"
         echo -e "-----------------------------------------------------------------------------" >>  "$outputFile"
 
         ##Sort the array by PatronID (first field) using sort based on MM/DD/YYYY
@@ -292,18 +294,18 @@ sortByDate()
         done <<< "$sorted_data"
         echo -e "\n"
 
-        echo "Exported to $outputFile successfully."
+        echo -n "Exported to $outputFile successfully."
 
         sleep 1.5
-        
         main_menu
+
     elif [ $response = "q" ] || [ $response = "Q" ];
     then 
-        echo "Returning to Main Menu"
+        echo -n "Returning to Main Menu"
         sleep 1
         main_menu
     else
-        echo "invalid choice, returning to main menu"
+        echo -n "Invalid choice, returning to main menu"
         sleep 1
         main_menu
     fi
