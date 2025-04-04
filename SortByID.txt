@@ -1,6 +1,7 @@
 Patron ID   First Name           Last Name            Mobile Number   Birth Date
 ---------------------------------------------------------------------------------
-P0001       Mohamed              Mahir                010-3411979     06-13-2005                      
-P1000       Chai Lim             Chin                 012-12345678    10-20-1970                      
-P1001       Muhamad Abu Bakar    Bin Rashid           014-78945612    11-29-1990                      
-P1003       Loh Mian             Simon                017-88888888    03-25-2020                      
+P0001       Mohamed              Mahir                010-3411979     06-13-2005
+P1000       Chai Lim             Chin                 012-12345678    10-20-1970
+P1001       Muhamad Abu Bakar    Bin Rashid           014-78945612    11-29-1990
+P1003       Loh Mian             Simon                017-88888888    03-25-2020
+P2002       tan                  zhen yu              011-2000000     22-22-2222

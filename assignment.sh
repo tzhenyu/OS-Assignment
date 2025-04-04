@@ -12,6 +12,31 @@
 bold=$(tput bold)
 normal=$(tput sgr0)
 
+
+center_title() {
+    text="$1"  # The title text
+
+    width=$(tput cols)   # Get terminal width
+    text_length=${#text} # Length of the title
+    line_length=$(( text_length - 6)) 
+
+    # Ensure separator doesn't exceed terminal width
+    if [ "$line_length" -gt "$width" ]; then
+        line_length=$((width))  # Adjust to fit
+    fi
+
+    separator=$(printf "%${line_length}s" | tr ' ' "-")
+    padding=$(( (width - line_length + 3) / 2 ))
+    
+    # Print centered separator and title
+    printf "%*s%s\n" "$(( (width + 12 - text_length) / 2 ))" "" "$text"
+    printf "%*s%s\n" "$padding" "" "$separator"
+}
+
+clear
+
+
+
 ## ADD PATRON FUNCTION
 ##TODO MENU BOLD FORMATTING
 add_patron () {
@@ -20,23 +45,23 @@ add_patron () {
     while [ "$choice" = "y" ]
     do
         clear
-        echo "${bold}Add New Patron Details Form"
-        echo "=========================== ${normal}"
+        center_title "${bold}Add New Patron Details Form${normal}"
+        echo
 
         # echo -n "Patron ID: "; read patronID
         #TODO: VALIDATE IF PATRON ID EXISTS
         # Read Patron ID
         while true; do
 
-            echo -n "Patron ID                          : "
+            echo -n " Patron ID                          : "
             read patronID
 
             # Check if the ID matches the format P0001
             if [[ "$patronID" =~ ^[A-Z][0-9]{4}$ ]]; then
                 # Check if patron.txt exists before checking for duplicates
                 if [[ -f patron.txt ]] && grep -q "^$patronID:" patron.txt; then
-                    echo "${bold}Patron ID already exists!"
-                    echo -n "${normal}Press Enter to try again."
+                    echo " ${bold}Patron ID already exists!"
+                    echo -n " ${normal}Press Enter to try again."
                     read
                     tput cuu 3 # move cursor up 2 lines
                     tput ed    # clear everything below
@@ -44,8 +69,8 @@ add_patron () {
                     break
                 fi
             else
-                echo "${bold}Invalid Patron ID! Format should be P0001."
-                echo -n "${normal}Press Enter to try again."
+                echo " ${bold}Invalid Patron ID! Format should be P0001."
+                echo -n " ${normal}Press Enter to try again."
                 read
                 tput cuu 3 # move cursor up 3 lines
                 tput ed    # clear everything below
@@ -54,12 +79,12 @@ add_patron () {
 
         # Read Patron First Name
         while true; do
-            echo -n "First Name                         : "; read patronFirstName
+            echo -n " First Name                         : "; read patronFirstName
             if [[ "$patronFirstName" =~ ^[a-zA-Z]+$ ]]; then
                 break
             else
-                echo "${bold}Invalid First Name! Use letters."
-                echo -n "${normal}Press Enter to try again."
+                echo " ${bold}Invalid First Name! Use letters."
+                echo -n " ${normal}Press Enter to try again."
                 read
                 tput cuu 3 # move cursor up 3 lines
                 tput ed    # clear everything below
@@ -68,12 +93,12 @@ add_patron () {
 
         #Read Patron Last Name
         while true; do
-            echo -n "Last Name                          : "; read patronLastName
+            echo -n " Last Name                          : "; read patronLastName
             if [[ "$patronLastName" =~ ^[a-zA-Z\ ]+$ ]]; then
                 break
             else
-                echo "${bold}Invalid Last Name! Use letters."
-                echo -n "${normal}Press Enter to try again."
+                echo " ${bold}Invalid Last Name! Use letters."
+                echo -n " ${normal}Press Enter to try again."
                 read
                 tput cuu 3 # move cursor up 3 lines
                 tput ed    # clear everything below
@@ -82,12 +107,12 @@ add_patron () {
 
         #Read Patron Phone Number
         while true; do
-            echo -n "Mobile Number                      : "; read patronPhoneNum
+            echo -n " Mobile Number                      : "; read patronPhoneNum
             if [[ "$patronPhoneNum" =~ ^[0-9]{3}-[0-9]{7,9}$ ]]; then
                 break
             else
-                echo "${bold}Invalid Phone Number! Use XXX-XXXXXXX."
-                echo -n "${normal}Press Enter to try again."
+                echo " ${bold}Invalid Phone Number! Use XXX-XXXXXXX."
+                echo -n " ${normal}Press Enter to try again."
                 read
                 tput cuu 3 # move cursor up 3 lines
                 tput ed    # clear everything below
@@ -96,12 +121,12 @@ add_patron () {
 
         #Read Patron Birth Date
         while true; do
-            echo -n "Birth Date (MM-DD-YYYY)            : "; read patronBirthDate
+            echo -n " Birth Date (MM-DD-YYYY)            : "; read patronBirthDate
             if [[ $patronBirthDate =~ ^[0-9]{2}-[0-9]{2}-[0-9]{4}$ ]]; then
                 break
             else
-                echo "${bold}Invalid Birth Date!"
-                echo -n "${normal}Press Enter to try again."
+                echo " ${bold}Invalid Birth Date!"
+                echo -n " ${normal}Press Enter to try again."
                 read
                 tput cuu 3 # move cursor up 3 lines
                 tput ed    # clear everything below
@@ -110,12 +135,12 @@ add_patron () {
 
         #Read Patron Membership
         while true; do
-            echo -n "Membership type (Student / Public) : "; read patronMembership
+            echo -n " Membership type (Student / Public) : "; read patronMembership
             if [[ "$patronMembership" == "Student" || "$patronMembership" == "Public" ]]; then
                 break
             else
-                echo "${bold}Invalid membership type! Choose 'Student' or 'Public'."
-                echo -n "${normal}Press Enter to try again."
+                echo " ${bold}Invalid membership type! Choose 'Student' or 'Public'."
+                echo -n " ${normal}Press Enter to try again."
                 read
                 tput cuu 3 # move cursor up 3 lines
                 tput ed    # clear everything below
@@ -124,12 +149,12 @@ add_patron () {
         
         #Read Patron Join Date
         while true; do
-            echo -n "Join Date (MM-DD-YYYY)             : "; read patronJoinDate
+            echo -n " Join Date (MM-DD-YYYY)             : "; read patronJoinDate
             if [[ $patronBirthDate =~ ^[0-9]{2}-[0-9]{2}-[0-9]{4}$ ]]; then
                 break
             else
-                echo "${bold}Invalid Join Date!"
-                echo -n "${normal}Press Enter to try again."
+                echo " ${bold}Invalid Join Date!"
+                echo -n " ${normal}Press Enter to try again."
                 read
                 tput cuu 3 # move cursor up 3 lines
                 tput ed    # clear everything below
@@ -181,9 +206,8 @@ DeletePatron(){ #functioning very well (insyallah)
     patron_file="patron.txt"
 
     #print out the header and prompt
-    echo -e "\n\n\t\t\t\tDelete a Patron Details"
-    echo -e "\t\t\t\t=======================\n"
-    echo -n "Enter Patron ID: "
+    center_title "${bold}Delete a Patron Details${normal}"
+    echo -n " Enter Patron ID: "
     read patron_id
 
     #saves the file to a variable
@@ -206,16 +230,17 @@ DeletePatron(){ #functioning very well (insyallah)
     joined=$(echo "$patron_details" | cut -d':' -f7)
 
 
-    echo "---------------------------------------"
-    echo " First Name: $fname"
-    echo " Last Name: $lname"
-    echo " Mobile Number: $mobile"
-    echo " Birth Date (MM-DD-YYYY): $dob"
-    echo " Membership Type: $type"
-    echo " Joined Date (MM-DD-YYYY): $joined"
-    echo "---------------------------------------"
+    echo " ------------------------------------------------"
+    echo "  First Name               : $fname"
+    echo "  Last Name                : $lname"
+    echo "  Mobile Number            : $mobile"
+    echo "  Birth Date (MM-DD-YYYY)  : $dob"
+    echo "  Membership Type          : $type"
+    echo "  Joined Date (MM-DD-YYYY) : $joined"
+    echo " ------------------------------------------------"
 
-    echo -n "Are you sure you want to DELETE the above Patron Details? (y)es or (q)uit: "
+    echo
+    echo -n "Are you sure you want to ${bold}DELETE${normal} the above Patron Details? (y)es or (q)uit: "
     read confirm
 
     if [ "$confirm" = "Y" ] || [ "$confirm" = "y" ]; 
@@ -277,7 +302,6 @@ sortById()
             printf "%-11s %-20s %-20s %-15s %-10s\n" "$id" "$fname" "$lname" "$mobile" "$dob" >> "$outputFile"
         done <<< "$sorted"
 
-        echo -e "\n"
         echo -n "Exported to $outputFile successfully."
 
         sleep 1.5
@@ -303,7 +327,7 @@ sortByDate()
     mapfile -t patron < patron.txt
     
      # Print the header with spacing
-    printf "%-10s %-20s %-17s %-15s %-10s\n" "Patron ID" "First Name" "Last Name" "Mobile Number" "Date Joined"
+    printf "%-10s %-20s %-17s %-15s %-10s\n" "Patron ID" "First Name" "Last Name" "Mobile Number" "Joined Date"
     echo "-----------------------------------------------------------------------------"
 
     outputFile="SortByDate.txt"
@@ -317,14 +341,14 @@ sortByDate()
     done <<< $sorted_data
     echo -e "\n"
 
-    echo -e " Press (q) to return to Patron Maintenance Menu.\n"
+    echo -e "Press (q) to return to Patron Maintenance Menu.\n"
     echo -n "Would you like to export the report as ASCII text file? (y)es (q)uit: "
 
     read -r response
 
     if [ $response = "y" ] || [ $response = "Y" ];
     then
-        printf "%-10s %-20s %-17s %-15s %-10s\n" "Patron ID" "First Name" "Last Name" "Mobile Number" "Date Joined" > "$outputFile"
+        printf "%-10s %-20s %-17s %-15s %-10s\n" "Patron ID" "First Name" "Last Name" "Mobile Number" "Joined Date" > "$outputFile"
         echo -e "-----------------------------------------------------------------------------" >>  "$outputFile"
 
         ##Sort the array by PatronID (first field) using sort based on MM/DD/YYYY
@@ -357,21 +381,19 @@ sortByDate()
 ## MAIN MENU FUNCTION
 main_menu () {
     clear
+    center_title "${bold}Patron Maintenance Menu${normal}"
 
-    echo "${bold}Patron Maintenance Menu"
-    echo "${normal}"
-
-    echo "A - Add New Patron Details"
-    echo "S - Search a Patron (by Patron ID)"
-    echo "U - Update a Patron Details"
-    echo "D - Delete a Patron Details"
-    echo "L - Sort Patrons by Last Name"
-    echo "P - Sort Patrons by Patron ID"
-    echo "J - Sort Patrons by Joined Date (Newest to Oldest Date)"
-    echo "Q - Exit from Program"
+    echo " A - Add New Patron Details"
+    echo " S - Search a Patron (by Patron ID)"
+    echo " U - Update a Patron Details"
+    echo " D - Delete a Patron Details"
+    echo " L - Sort Patrons by Last Name"
+    echo " P - Sort Patrons by Patron ID"
+    echo " J - Sort Patrons by Joined Date (Newest to Oldest)"
+    echo " Q - Exit from Program"
 
     echo
-    echo -n "Please select a choice: "
+    echo -n "Please select a choice >>"
 
     read choice
 
