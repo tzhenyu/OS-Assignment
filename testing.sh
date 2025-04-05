@@ -66,8 +66,8 @@ patron_search_id() {
 ## TASK 4 Update Patron Details
 
 patron_update() {
-	choiceU='y' #initailize choiceU variable for while-loop
-	while [ "$choiceU" == 'y' ] || [ "$choiceU" == 'Y' ] ; do
+	choiceU='n' #initailize choiceU variable for while-loop
+	while [ "$choiceU" == 'n' ] ; do
 		clear
 		
 		echo "${bold}Update a Patron Details"
@@ -75,13 +75,15 @@ patron_update() {
 		read -p "Enter Patron ID: ${normal}" patron_id
 		echo
 
-		#validates id length = 5
 		length=$( echo -n "$patron_id" | wc -c)
-		## echo $length
+
+		#validates id length = 5		
 		if [[ $length -ne 5 ]]; then
-			echo "Invalid ID length, please try again."
+			echo "Invalid ID length."
+			read -p "Press any key to try again."
 		elif [[ ! "$patron_id" =~ ^[A-Z]+[0-9]{4}$ ]]; then
-			echo "Invalid ID format, please try again."
+			echo "Invalid ID format."
+			read -p "Press any key to try again."
 		else 
 			#get line where patron_id is a match
 			x=$(grep "$patron_id" ./testing.txt)
@@ -99,23 +101,70 @@ patron_update() {
 				echo ; echo ; echo
 				echo "Press (q) to return to Patron Maintenance Menu."
 				echo 
+				read -p "Are you sure you want to ${bold}UPDATE ${normal}the above Patron Details? (y)es or (q)uit : " choiceU
+				echo
+				case "$choiceU" in 
+					Q | q)
+						return;; ####
+					Y | y)
+						edit_patron;;
+						*)
+						choiceU='n';;
+				esac				
+
 			else
 		  		echo "No matching ID found."
+				read -p "Press any key to try again."
 			fi
 		fi
 		
-		read -p "Are you sure you want to ${bold}UPDATE ${normal}the above Patron Details? (y)es or (q)uit : " choiceU
-		
-		case "$choiceU" in 
-			Q | q)
-				return;; ####
-			*)
-				choiceU='y';;
-		esac
 	done 
 }
 
-#patron_update
+edit_patron(){
+	condition=999
+	condition2=888
+	while [[ $condition -eq 999 ]]; do
+		echo "Current Mobile Number: $x4"
+		read -p "Enter new Mobile Number: " x4_new
+		echo 
+					
+		if [[ -z "$x4_new" ]]; then
+			echo "Mobile Number cannot be empty"
+			echo						
+		else 
+			echo "Mobile Number updated"
+			echo
+			condition=1
+		fi
+				
+	done
+						
+	while [[ $condition2 -eq 888 ]]; do
+		echo "Current Birth Date: $x5"
+		read -p "Enter new Birth Date (MM-DD-YYYY): " x5_new
+		echo
+
+		if [[ -z "$x5_new" ]]; then
+			echo "Birth Date cannot be empty"
+			echo
+		else
+			echo "Birth Date updated"
+			echo
+			condition2=1
+		fi		
+							
+	done
+						
+	updated_entry="${x1}:${x2}:${x3}:${x4_new}:${x5_new}:${x6}:${x7}"
+	sed -i "s/^$x/${updated_entry}/" ./testing.txt
+	echo "Details updated successfully."
+	gedit testing.txt
+					
+}
 
 
-patron_search_id #call first function to start test flow
+patron_update
+
+
+#patron_search_id #call first function to start test flow
