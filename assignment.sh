@@ -243,6 +243,8 @@ sortById()
 {
     #read the file from patron into array form
     mapfile -t patron < patron.txt
+    printf "${bold}\t\tPatron Details By sorted Patron ID"
+    echo -e "\n\n"
 
     #a freaking header
     printf "${bold}%-11s %-17s %-20s %-15s %-10s\n" "Patron ID" "Last Name" "First Name" "Mobile Number" "Birth Date"
@@ -266,15 +268,17 @@ sortById()
 
     if [ $response = "y" ] || [ $response = "Y" ];
     then
-        printf "${bold}%-11s %-17s %-20s %-15s %-10s\n" "Patron ID" "Last Name" "First Name" "Mobile Number" "Birth Date" > "$outputFile"
-        echo -e "${bold}---------------------------------------------------------------------------------" >>  "$outputFile"
+        printf "\t\tPatron Details By sorted Patron ID" > "$outputFile"
+        echo -e "\n\n" >> "$outputFile"
+        printf "%-11s %-17s %-20s %-15s %-10s\n" "Patron ID" "Last Name" "First Name" "Mobile Number" "Birth Date" >> "$outputFile"
+        echo -e "---------------------------------------------------------------------------------" >>  "$outputFile"
 
         ##Sort the array by PatronID (first field) using sort
         sorted=$(printf "%s\n" "${patron[@]:1}"| sort -t ':' -k1 )
 
         while IFS=':' read -r id fname lname mobile dob _ _ ; 
         do
-            printf "${normal}%-11s %-17s %-20s %-15s %-10s\n" "$id" "$lname" "$fname" "$mobile" "$dob" >> "$outputFile"
+            printf "%-11s %-17s %-20s %-15s %-10s\n" "$id" "$lname" "$fname" "$mobile" "$dob" >> "$outputFile"
         done <<< "$sorted"
 
         echo -e "\n"
@@ -301,7 +305,9 @@ sortByDate()
 {
     #read the file from patron into array form (the -t is to remove the new line occurence or it will mess up the indexes)
     mapfile -t patron < patron.txt
-    
+    printf "${bold}\t\tPatron Details By sorted Date Joined"
+    echo -e "\n\n"
+
      # Print the header with spacing
     printf "${bold}%-10s %-17s %-20s %-15s %-10s\n" "Patron ID" "Last Name" "First Name" "Mobile Number" "Joined Date"
     echo "${bold}-----------------------------------------------------------------------------"
@@ -309,7 +315,7 @@ sortByDate()
     outputFile="SortByDate.txt"
 
     # Sort the data and format it
-    sorted_data=$(printf "%s\n" "${patron[@]:1}" | sort -t':' -k7.7,7.10n -k7.4,7.5n -k7.1,7.2n )
+    sorted_data=$(printf "%s\n" "${patron[@]:1}" | sort -t':' -k7.7,7.10n -k7.1,7.2n -k7.4,7.5n )
      
     while IFS=':' read -r id fname lname mobile dob type joined; 
     do
@@ -324,15 +330,17 @@ sortByDate()
 
     if [ $response = "y" ] || [ $response = "Y" ];
     then
-        printf "${bold}%-10s %-17s %-20s %-15s %-10s\n" "Patron ID" "Last Name" "First Name" "Mobile Number" "Joined Date" > "$outputFile"
-        echo -e "${bold}-----------------------------------------------------------------------------" >>  "$outputFile"
+        printf "\t\tPatron Details By sorted Date Joined"
+        echo -e "\n\n"
+        printf "%-10s %-17s %-20s %-15s %-10s\n" "Patron ID" "Last Name" "First Name" "Mobile Number" "Joined Date" > "$outputFile"
+        echo -e "-----------------------------------------------------------------------------" >>  "$outputFile"
 
         ##Sort the array by PatronID (first field) using sort based on MM/DD/YYYY
         sorted_data=$(printf "%s\n" "${patron[@]:1}" | sort -t':' -k7.7,7.10n -k7.1,7.2n -k7.4,7.5n )
 
         while IFS=':' read -r id fname lname mobile dob type joined ; 
         do
-             printf "${normal}%-10s %-17s %-20s %-15s %-12s %-8s %-12s\n" "$id" "$lname" "$fname" "$mobile" "$joined" >> "$outputFile"
+            printf "%-10s %-17s %-20s %-15s %-12s %-8s %-12s\n" "$id" "$lname" "$fname" "$mobile" "$joined" >> "$outputFile"
         done <<< "$sorted_data"
         echo -e "\n"
 
