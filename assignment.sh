@@ -303,7 +303,7 @@ sortByDate()
     mapfile -t patron < patron.txt
     
      # Print the header with spacing
-    printf "${bold}%-10s %-17s %-20s %-15s %-10s\n" "Patron ID" "Last Name" "First Name" "Mobile Number" "Date Joined"
+    printf "${bold}%-10s %-17s %-20s %-15s %-10s\n" "Patron ID" "Last Name" "First Name" "Mobile Number" "Joined Date"
     echo "${bold}-----------------------------------------------------------------------------"
 
     outputFile="SortByDate.txt"
@@ -324,7 +324,7 @@ sortByDate()
 
     if [ $response = "y" ] || [ $response = "Y" ];
     then
-        printf "${bold}%-10s %-17s %-20s %-15s %-10s\n" "Patron ID" "Last Name" "First Name" "Mobile Number" "Date Joined" > "$outputFile"
+        printf "${bold}%-10s %-17s %-20s %-15s %-10s\n" "Patron ID" "Last Name" "First Name" "Mobile Number" "Joined Date" > "$outputFile"
         echo -e "${bold}-----------------------------------------------------------------------------" >>  "$outputFile"
 
         ##Sort the array by PatronID (first field) using sort based on MM/DD/YYYY
