@@ -1,4 +1,4 @@
-## TASK 3 SEARCH PATRON BY ID
+## TASK 4 SEARCH PATRON BY ID
 
 bold=$(tput bold)
 normal=$(tput sgr0)
@@ -7,8 +7,20 @@ normal=$(tput sgr0)
 #Makes sure that working directory is same as script directory
 cd $(dirname "$0")
 
+#set data file name so that all functions can run
+data_file="testing.txt"
+
+
 patron_search_id() {
 	choicePS='y' #initailize choicePS variable for while-loop
+	
+	#tests if data file exists
+	if [[ ! -f ./"$data_file" ]]; then
+		echo "$data_file not found." 
+		choicePS='y' 
+		read -p "Press enter to exit"
+	fi 
+	
 	while [ "$choicePS" == 'y' ] || [ "$choicePS" == 'Y' ] ; do
 		clear
 		
@@ -26,7 +38,7 @@ patron_search_id() {
 			echo "Invalid ID format, please try again."
 		else 
 			#get line where patron_id is a match
-			x=$(grep "$patron_id" ./testing.txt)
+			x=$(grep "$patron_id" ./"$data_file")
 			
 			if [[ -n "$x" ]]; then
 				#read $x and assign fields to variables x(1-7)
@@ -64,10 +76,18 @@ patron_search_id() {
 
 
 
-## TASK 4 Update Patron Details
+## TASK 5 Update Patron Details
 
 patron_update() {
 	choiceU='n' #initailize choiceU variable for while-loop
+	
+	#tests if data file exists
+	if [[ ! -f ./"$data_file" ]]; then
+		echo "$data_file not found." 
+		choiceU='y' 
+		read -p "Press enter to exit"
+	fi 
+	
 	while [ "$choiceU" == 'n' ] ; do
 		clear
 		
@@ -89,7 +109,7 @@ patron_update() {
 			
 		else 
 			#get line where patron_id is a match
-			x=$(grep "$patron_id" ./testing.txt)
+			x=$(grep "$patron_id" ./"$data_file")
 			
 			if [[ -n "$x" ]]; then
 				#read $x and assign fields to variables x(1-7)
@@ -111,6 +131,8 @@ patron_update() {
 						return;; ####
 					Y | y)
 						edit_patron;;
+					n | N)
+						sort_last_name;; #### for test flow only
 						*)
 						choiceU='n';;
 				esac				
@@ -205,7 +227,7 @@ edit_patron(){
 	fi
 						
 	updated_entry="${x1}:${x2}:${x3}:${x4_new}:${x5_new}:${x6}:${x7}"
-	sed -i "s/^$x/${updated_entry}/" ./testing.txt
+	sed -i "s/^$x/${updated_entry}/" ./"$data_file"
 	echo "Patron Details update ${bold}$msg${normal}"		
 }
 
@@ -214,7 +236,86 @@ edit_patron(){
 
 
 
-## TASK 5 Sort by Last Name ASC
+## TASK 6.1 Sort by Last Name ASC
+
+sort_last_name() {
+	choiceSL='n' #initialize choiceSL variable for while-loop
+	header="Patron ID:First Name:Last Name:Phone Number:Birth Date:Type:Joined Date"
+	IFS=':' read -r h1 h2 h3 h4 h5 h6 h7 <<< "$header"
+
+	declare -a last_name
+	declare -a sorted_lname
+
+	#tests if data file exists
+	if [[ ! -f ./"$data_file" ]]; then
+		echo "$data_file not found." 
+		choiceSL='y' 
+		read -p "Press enter to exit"
+	fi 
+	
+  	while [ "$choiceSL" == 'n' ] ; do
+    	clear
+
+    	echo "${bold}Patron Details Sorted by Last Name${normal}"
+    	echo ; echo 
+
+		while IFS=':' read -r x1 x2 x3 x4 x5 x6 x7 ; do
+        	#skip first line placeholder
+        	if [[ "$x1" =~ ^[A-Z]+[0-9]{4}$ ]]; then
+        	    modified_lname=$(echo "$x3" | sed 's/ /,/g') # Replace space with comma
+				last_name+=("$modified_lname")
+            fi
+ 		done < "$data_file"
+
+ 		# Sort the array based on comma-separated last names
+ 		sorted_temp=($(printf "%s\n" "${last_name[@]}" | sort))
+
+ 		# Replace commas back with spaces for the final sorted array
+ 		for item in "${sorted_temp[@]}"; do
+  			restored_lname=$(echo "$item" | sed 's/,/ /g') # Replace comma with space
+  			sorted_lname+=("$restored_lname")
+ 		done
+
+    	printf "%-15s %-20s %-11s %-15s %-12s %-9s %-12s\n" "$h3" "$h2" "$h1" "$h4" "$h5" "$h6" "$h7"
+		
+ 		for sorted_ln in "${sorted_lname[@]}"; do
+      		grep "^[^:]*:[^:]*:${sorted_ln}:" "$data_file" | while IFS=':' read -r f1 f2 f3 f4 f5 f6 f7; do
+        	if [[ "$f1" != "PatronID" ]]; then
+          		printf "%-15s %-20s %-11s %-15s %-12s %-9s %-12s\n" "$f3" "$f2" "$f1" "$f4" "$f5" "$f6" "$f7"
+        	fi
+      		done
+    	done
+	
+	echo
+	echo "Press (q) to return to Patron Maintenance Menu."
+	echo
+    read -p "Would you like to export the report as ASCII text file? (y)es or (q)uit: " choiceSL
+
+    case "$choiceSL" in
+      Y | y)
+        # Output the header and sorted data to a file
+        { printf "%-15s %-20s %-11s %-15s %-12s %-9s %-12s\n" "$h3" "$h2" "$h1" "$h4" "$h5" "$h6" "$h7" 
+           
+        for sorted_ln in "${sorted_lname[@]}"; do
+      		grep "^[^:]*:[^:]*:${sorted_ln}:" ./"$data_file" | while IFS=':' read -r f1 f2 f3 f4 f5 f6 f7; do
+       		if [[ "$f1" != "PatronID" ]]; then
+        		printf "%-15s %-20s %-11s %-15s %-12s %-9s %-12s\n" "$f3" "$f2" "$f1" "$f4" "$f5" "$f6" "$f7"
+        	fi
+      		done 
+      	done 
+      	} > ./sortedlnoutput.txt 
+      	;;
+      Q | q)
+        exit;; ####
+      *)
+        choiceSL='y';;
+    esac
+  done
+}
+
+#sort_last_name
 
 
 patron_search_id #call first function to start test flow
+
+

@@ -1,0 +1,5 @@
+Last Name       First Name           Patron ID   Phone Number    Birth Date   Type      Joined Date 
+Bin Rashid Ak   Muhamad Abu Bakar    P1001       014-78945612    02-24-2000   Student   01-02-2025  
+Bin Rashid Bk   Muhamad Abu Bakar    P1005       010-23443212    01-01-2000   Student   01-01-2004  
+Chin            Chai Lim             P1000       010-2314657     29-02-2002   Student   01-10-2025  
+Simon           Loh Mian             P1003       012-12345678    03-25-2020   Public    02-01-2025  
