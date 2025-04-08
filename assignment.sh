@@ -542,8 +542,7 @@ patron_update() {
 	while [ "$choiceU" == 'n' ] ; do
 		clear
 		
-		echo "${bold}Update a Patron Details"
-		echo 
+		center_title "Update a Patron Details"
 		read -p "Enter Patron ID: ${normal}" patron_id
 		echo
 
