@@ -2,3 +2,4 @@ PatronID:FName:LName:MobileNum:BirthDate:Type:JoinedDate
 P1000:Chai Lim:Chin:012-12345678:10-20-1970:Student:01-10-2025
 P1003:Loh Mian:Simon:017-88888888:03-25-2020:Public:02-01-2025
 P1001:Muhamad Abu Bakar:Bin Rashid:014-78945612:11-29-1990:Student:01-02-2025
+P3000:Tan:Zhen Yu:011-2222222:03-16-2004:Public:04-15-2025

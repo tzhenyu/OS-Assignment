@@ -1,18 +1,5 @@
-		Patron Details By sorted Patron ID
-
-
-Patron ID   Last Name         First Name           Mobile Number   Birth Date
+Patron ID  Last Name         First Name           Mobile Number   Joined Date
 -----------------------------------------------------------------------------
-P0001       Mahir             Mohamed              010-3411979     06-13-2005
-P0002       a                 a                    011-20202020    22-22-2222
-P1000       Chin              Chai Lim             012-12345678    10-20-1970
-P1001       Bin Rashid        Muhamad Abu Bakar    014-78945612    11-29-1990
-P1002       clear             clear                011-1111111     22-22-2222
-P1003       Simon             Loh Mian             017-88888888    03-25-2020
-P1004       dd                dd                   011-1111111     22-22-2222
-P1005       d                 d                    011-1111111     22-22-2222
-P1009       ss                ss                   011-2020202     22-22-2222
-P1102       zheny             tan                  011-1111111     22-22-2222
-P2002       zz                tan                  222-2222222     33-33-3333
-P2022       D                 a                    011-1111111     22-22-2222
-P3333       d                 a                    011-1111111     22-22-2222
+P1000      Chin              Chai Lim             012-12345678    10-20-1970
+P1001      Bin Rashid        Muhamad Abu Bakar    014-78945612    11-29-1990
+P1003      Simon             Loh Mian             017-88888888    03-25-2020

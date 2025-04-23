@@ -74,7 +74,7 @@ add_patron () {
         # Read Patron First Name
         while true; do
             echo -n " First Name                         : "; read patronFirstName
-            if [[ "$patronFirstName" =~ ^[a-zA-Z]+$ ]]; then
+            if [[ "$patronFirstName" =~ ^[a-zA-Z\ ]+$ ]]; then
                 break
             else
                 echo " ${bold}Invalid First Name! Use letters."
@@ -113,21 +113,46 @@ add_patron () {
             fi
         done
 
-        #Read Patron Birth Date
         while true; do
             echo -n " Birth Date (MM-DD-YYYY)            : "; read patronBirthDate
-            if [[ $patronBirthDate =~ ^[0-9]{2}-[0-9]{2}-[0-9]{4}$ ]]; then
-                break
-            else
-                echo " ${bold}Invalid Birth Date!"
+            
+            # Check format first (MM-DD-YYYY)
+            if [[ ! $patronBirthDate =~ ^[0-9]{2}-[0-9]{2}-[0-9]{4}$ ]]; then
+                echo " ${bold}Invalid date format! Use MM-DD-YYYY."
                 echo -n " ${normal}Press Enter to try again."
                 read
                 tput cuu 3 # move cursor up 3 lines
                 tput ed    # clear everything below
+                continue
             fi
+            
+            # Extract month, day, and year
+            month=$(echo $patronBirthDate | cut -d'-' -f1)
+            day=$(echo $patronBirthDate | cut -d'-' -f2)
+            
+            # Simple validation - month between 1-12, day between 1-31
+            if [[ $month -lt 1 || $month -gt 12 ]]; then
+                echo " ${bold}Invalid month! Month must be between 01-12."
+                echo -n " ${normal}Press Enter to try again."
+                read
+                tput cuu 3 # move cursor up 3 lines
+                tput ed    # clear everything below
+                continue
+            fi
+            
+            if [[ $day -lt 1 || $day -gt 31 ]]; then
+                echo " ${bold}Invalid day! Day must be between 01-31."
+                echo -n " ${normal}Press Enter to try again."
+                read
+                tput cuu 3 # move cursor up 3 lines
+                tput ed    # clear everything below
+                continue
+            fi
+            
+            # If we got here, the date is valid
+            break
         done
-
-        #Read Patron Membership
+                #Read Patron Membership
         while true; do
             echo -n " Membership type (Student / Public) : "; read patronMembership
             if [[ "$patronMembership" == "Student" || "$patronMembership" == "Public" ]]; then
@@ -158,6 +183,7 @@ add_patron () {
         # Check if user inputs join date, if no then use current date
         if [ -z "$patronJoinDate" ]
         then
+            echo "${bold}No Join Date provided, using current date."
             patronJoinDate=$(date '+%m-%d-%Y') 
         fi
 
@@ -194,10 +220,84 @@ add_patron () {
     main_menu
 }
 
+
+# SEARCH FUNCTION
+patron_search_id() {
+	choicePS='y' #initailize choicePS variable for while-loop
+	
+	#tests if data file exists
+	if [[ ! -f ./"$data_file" ]]; then
+		echo "$data_file not found." 
+		choicePS='y' 
+		read -p "Press enter to exit"
+	fi 
+	
+	while [ "$choicePS" == 'y' ] || [ "$choicePS" == 'Y' ] ; do
+		clear
+
+        # Center the table
+        term_width=$(tput cols)
+        table_width=40
+        left_padding=$(( (term_width - table_width) / 2 - 10))
+        padding_spaces=$(printf "%${left_padding}s" "")
+
+		center_title "Search a Patron Details"
+		read -p "Enter Patron ID: ${normal}" patron_id
+
+		#validates id length = 5
+		length=$( echo -n "$patron_id" | wc -c)
+		## echo $length
+		if [[ $length -ne 5 ]]; then
+			echo  -n "${bold}Invalid ID length!${normal}"
+		elif [[ ! "$patron_id" =~ ^[A-Z]+[0-9]{4}$ ]]; then
+			echo -n "${bold}Invalid ID format!${normal}"
+            
+		else 
+			#get line where patron_id is a match
+			x=$(grep "$patron_id" ./"$data_file")
+			
+			if [[ -n "$x" ]]; then
+				#read $x and assign fields to variables x(1-7)
+				IFS=':' read -r x1 x2 x3 x4 x5 x6 x7 <<< "$x"
+                
+                printf '─%.0s' $(seq 1 $(tput cols))
+				echo "$padding_spaces First Name               : $x2"
+				echo "$padding_spaces Last Name                : $x3"
+				echo "$padding_spaces Mobile Number            : $x4"          
+				echo "$padding_spaces Birth Date (DD-MM-YYYY)  : $x5"
+				echo "$padding_spaces Membership type          : $x6"
+				echo "$padding_spaces Joined Date (DD-MM-YYYY) : $x7"
+                printf '─%.0s' $(seq 1 $(tput cols))
+				echo
+				echo "Press (q) to return to Patron Maintenance Menu."
+			else
+		  		echo "No matching ID found."
+			fi
+		fi
+		
+		echo -ne "\nSearch another patron? (y)es or (q)uit : "; read choicePS
+		
+		case "$choicePS" in 
+			Q | q)
+				main_menu;; ####
+			n | N)
+				patron_update;; #### for test flow only
+				*)
+				choicePS='y';; 
+		esac
+	done 
+}
+
 ## DELETE PATRON FUNCTION
-DeletePatron(){ #functioning very well (insyallah)
+DeletePatron() { #functioning very well (insyallah)
 
     patron_file="patron.txt"
+
+    # Center the table
+    term_width=$(tput cols)
+    table_width=40
+    left_padding=$(( (term_width - table_width) / 2 - 10))
+    padding_spaces=$(printf "%${left_padding}s" "")
 
     #print out the header and prompt
     center_title "Delete a Patron Details"
@@ -225,12 +325,12 @@ DeletePatron(){ #functioning very well (insyallah)
 
     printf '─%.0s' $(seq 1 $(tput cols))
     echo
-    echo " ${bold}First Name               :${normal} $fname"
-    echo " ${bold}Last Name                :${normal} $lname"
-    echo " ${bold}Mobile Number            :${normal} $mobile"
-    echo " ${bold}Birth Date (MM-DD-YYYY)  :${normal} $dob"
-    echo " ${bold}Membership Type          :${normal} $type"
-    echo " ${bold}Joined Date (MM-DD-YYYY) :${normal} $joined"
+    echo "$padding_spaces First Name               : $fname"
+    echo "$padding_spaces Last Name                : $lname"
+    echo "$padding_spaces Mobile Number            : $mobile"
+    echo "$padding_spaces Birth Date (MM-DD-YYYY)  : $dob"
+    echo "$padding_spaces Membership Type          : $type"
+    echo "$padding_spaces Joined Date (MM-DD-YYYY) : $joined"
     printf '─%.0s' $(seq 1 $(tput cols))
     echo
     echo -e "Press (q) to return to Patron Maintenance Menu."
@@ -252,290 +352,27 @@ DeletePatron(){ #functioning very well (insyallah)
         echo -n "${bold}Invalid Choice!" "${normal}Press Enter to try again."; read
         tput cuu 2 # move cursor up 2 lines
         tput ed    # clear everything below
+        clear
         DeletePatron ;
     fi
 }
 
-## SORT USER BY ID
-sortById()
-{
-    mapfile -t patron < patron.txt #read the file from patron into array form
-    center_title "Patron Details Sorted by Patron ID"
-
-    # Center the table
-    term_width=$(tput cols)
-    table_width=73  
-    left_padding=$(( (term_width - table_width) / 2 - 2))
-    padding_spaces=$(printf "%${left_padding}s" "")
-
-    # Print header with padding
-    printf "%s${bold}%-11s %-17s %-20s %-15s %-10s\n" "$padding_spaces" "Patron ID" "Last Name" "First Name" "Mobile Number" "Birth Date"
-    printf "%s${bold}%s\n" "$padding_spaces" "─────────────────────────────────────────────────────────────────────────────"
-
-    outputFile="SortByID.txt"
-
-    # Sort the array by PatronID (first field) using sort
-    sorted=$(printf "%s\n" "${patron[@]:1}"| sort -t ':' -k1)
-
-    # Print data rows with padding
-    while IFS=':' read -r id fname lname mobile dob _ _ ; 
-    do
-        printf "%s${normal}%-11s %-17s %-20s %-15s %-12s\n" "$padding_spaces" "$id" "$lname" "$fname" "$mobile" "$dob"
-    done <<< "$sorted"
-
-    echo -e "\n"
-    echo -e "Press (q) to return to Patron Maintenance Menu.\n"
-    echo -n "Would you like to export the report as ASCII text file? (y)es (q)uit: " ; read -r response
-
-    if [ $response = "y" ] || [ $response = "Y" ];
-    then
-        printf "%-11s %-17s %-20s %-15s %-10s\n" "Patron ID" "Last Name" "First Name" "Mobile Number" "Birth Date" >> "$outputFile"
-        echo -e "─────────────────────────────────────────────────────────────────────────────" >>  "$outputFile"
-
-        ##Sort the array by PatronID (first field) using sort
-        sorted=$(printf "%s\n" "${patron[@]:1}"| sort -t ':' -k1 )
-
-        while IFS=':' read -r id fname lname mobile dob _ _ ; 
-        do
-            printf "%-11s %-17s %-20s %-15s %-10s\n" "$id" "$lname" "$fname" "$mobile" "$dob" >> "$outputFile"
-        done <<< "$sorted"
-
-        echo -n "Exported to $outputFile successfully."
-        sleep 1.5
-        main_menu
-
-    elif [ $response = "q" ] || [ $response = "Q" ];
-    then 
-        main_menu;
-    else
-        echo -n "${bold}Invalid Choice!" "${normal}Press Enter to try again."; read
-        tput cuu 2 # move cursor up 2 lines
-        tput ed    # clear everything below
-        sortById ;
-    fi
-
-}
-
-## SORT BY DATE
-sortByDate()
-{
-    #read the file from patron into array form (the -t is to remove the new line occurence or it will mess up the indexes)
-    mapfile -t patron < patron.txt
-    center_title "Patron Details Sorted by Joined Date"
-
-    # Center the table
-    term_width=$(tput cols)
-    table_width=73 
-    left_padding=$(( (term_width - table_width) / 2 - 2))
-    padding_spaces=$(printf "%${left_padding}s" "")
-
-    # Print header with padding
-    printf "%s${bold}%-10s %-17s %-20s %-15s %-10s\n" "$padding_spaces" "Patron ID" "Last Name" "First Name" "Mobile Number" "Joined Date"
-    printf "%s${bold}%s\n" "$padding_spaces" "─────────────────────────────────────────────────────────────────────────────"
-
-    outputFile="SortByDate.txt"
-
-    # Sort the data and format it
-    sorted_data=$(printf "%s\n" "${patron[@]:1}" | sort -t':' -k7.7,7.10n -k7.1,7.2n -k7.4,7.5n )
-        
-    # Print data rows with padding
-    while IFS=':' read -r id fname lname mobile dob type joined; 
-    do
-        printf "%s${normal}%-10s %-17s %-20s %-15s %-12s\n" "$padding_spaces" "$id" "$lname" "$fname" "$mobile" "$joined"
-    done <<< "$sorted_data"
-
-    echo
-    echo -e "Press (q) to return to Patron Maintenance Menu.\n"
-    echo -n "Would you like to export the report as ASCII text file? (y)es (q)uit: " ; read -r response
-
-    if [ $response = "y" ] || [ $response = "Y" ];
-    then
-        printf "%-10s %-17s %-20s %-15s %-10s\n" "Patron ID" "Last Name" "First Name" "Mobile Number" "Joined Date" > "$outputFile"
-        echo -e "─────────────────────────────────────────────────────────────────────────────" >>  "$outputFile"
-
-        ##Sort the array by PatronID (first field) using sort based on MM/DD/YYYY
-        sorted_data=$(printf "%s\n" "${patron[@]:1}" | sort -t':' -k7.7,7.10n -k7.1,7.2n -k7.4,7.5n )
-
-        while IFS=':' read -r id fname lname mobile dob type joined ; 
-        do
-            printf "%-10s %-17s %-20s %-15s %-12s" "$id" "$lname" "$fname" "$mobile" "$joined" >> "$outputFile"
-        done <<< "$sorted_data"
-
-        echo -e "\n"
-        echo -n "Exported to $outputFile successfully."
-        sleep 1.5
-        main_menu
-
-    elif [ $response = "q" ] || [ $response = "Q" ];
-    then 
-        main_menu
-    else
-        echo -n "${bold}Invalid Choice!" "${normal}Press Enter to try again." ; read
-        tput cuu 2 # move cursor up 2 lines
-        tput ed    # clear everything below
-        sortByDate
-    fi
-
-}
-
-# SEARCH FUNCTION
-patron_search_id() {
-	choicePS='y' #initailize choicePS variable for while-loop
-	
-	#tests if data file exists
-	if [[ ! -f ./"$data_file" ]]; then
-		echo "$data_file not found." 
-		choicePS='y' 
-		read -p "Press enter to exit"
-	fi 
-	
-	while [ "$choicePS" == 'y' ] || [ "$choicePS" == 'Y' ] ; do
-		clear
-		
-		echo "${bold}Search a Patron Details"
-		echo 
-		read -p "Enter Patron ID: ${normal}" patron_id
-		echo
-
-		#validates id length = 5
-		length=$( echo -n "$patron_id" | wc -c)
-		## echo $length
-		if [[ $length -ne 5 ]]; then
-			echo "Invalid ID length, please try again."
-		elif [[ ! "$patron_id" =~ ^[A-Z]+[0-9]{4}$ ]]; then
-			echo "Invalid ID format, please try again."
-		else 
-			#get line where patron_id is a match
-			x=$(grep "$patron_id" ./"$data_file")
-			
-			if [[ -n "$x" ]]; then
-				#read $x and assign fields to variables x(1-7)
-				IFS=':' read -r x1 x2 x3 x4 x5 x6 x7 <<< "$x"
-				echo "First Name : $x2"
-				echo "Last Name : $x3"
-				echo "Mobile Number : $x4"          
-				echo "Birth Date (DD-MM-YYYY) : $x5"
-				echo "Membership type : $x6"
-				echo "Joined Date (DD-MM-YYYY) : $x7"
-				
-				echo ; echo ; echo
-				echo "Press (q) to return to Patron Maintenance Menu."
-				echo 
-			else
-		  		echo "No matching ID found."
-			fi
-		fi
-		
-		read -p "Search another patron? (y)es or (q)uit : " choicePS
-		
-		case "$choicePS" in 
-			Q | q)
-				main_menu;; ####
-			n | N)
-				patron_update;; #### for test flow only
-				*)
-				choicePS='y';; 
-		esac
-	done 
-}
-
-#EDIT PATRON
-
-edit_patron(){
-	condition=997
-	condition2=886
-	
-	clear
-	echo "Patron ID: $x1"
-	
-	while [[ $condition -gt 996 && $condition -lt 1000 ]]; do
-		echo "Current Mobile Number: $x4"
-		read -p "Enter new Mobile Number: " x4_new
-		echo 
-					
-		if [[ -z "$x4_new" ]]; then
-			echo "Mobile Number cannot be empty."
-			echo
-		elif [[ ! "$x4_new" =~ ^01[0-9]-[0-9]{7,8}$ ]]; then 
-			echo "Invalid Mobile Number format."		
-			echo 
-		else 
-			echo "Mobile Number updated to $x4_new"
-			echo
-			condition=1
-		fi
-		
-		#Limit Errors not more than 3
-		if [[ $condition -eq 999 ]]; then
-			echo "Too many errors."
-			unset x4_new
-			condition2=1 # skip Date editing
-		fi
-		condition=$((condition + 1))
-	done
-						
-	while [[ $condition2 -gt 885 && $condition2 -lt 889 ]]; do
-		echo "Current Birth Date: $x5"
-		read -p "Enter new Birth Date (DD-MM-YYYY): " x5_new
-		echo
-		
-		year_now=$(date +"%Y")
-		
-		IFS='-' read -r DD MM YYYY <<< "$x5_new"
-		if [[ -z "$x5_new" ]]; then
-			echo "Birth Date cannot be empty."
-			echo
-		elif [[ ! "$x5_new" =~ ^[0-9]{2}-[0-9]{2}-[0-9]{4} ]]; then
-			echo "Invalid date format."
-			echo
-		elif [[ $DD -gt 31 || $DD -lt 1 ]]; then
-			echo "Day between 1 to 31."
-			echo
-		elif [[ $MM -gt 12 || $MM -lt 1 ]]; then
-			echo "Month between 1 to 12."
-			echo
-		elif [[ $YYYY -gt $year_now || $YYYY -lt $(($year_now - 120)) ]]; then
-			echo "Invalid year."
-			echo 
-		elif [[ $MM -eq 02 && $DD -gt 29 ]]; then
-			echo "February has less than 29 days."
-			echo
-		else
-			echo "Birth Date updated to $x5_new"
-			echo
-			break
-		fi		
-		
-		#Limit Errors not more than 3
-		if [[ $condition2 -eq 888 ]]; then
-			echo "Too many errors."
-			unset x5_new
-			break 
-		fi
-		condition2=$((condition2 + 1))					
-	done
-	
-	if [[ -z "$x5_new" || -z "$x4_new" ]]; then
-		x5_new=$x5 ; x4_new=$x4 ; msg="unsuccessful."
-	else 
-		msg="successful."
-	fi
-						
-	updated_entry="${x1}:${x2}:${x3}:${x4_new}:${x5_new}:${x6}:${x7}"
-	sed -i "s/^$x/${updated_entry}/" ./"$data_file"
-	echo -n "Patron Details update ${bold}$msg${normal}"		
-    sleep 1.5
-    main_menu
-}
 
 # UPDATE PATRON 
 patron_update() {
 	choiceU='n' #initailize choiceU variable for while-loop
 	
+    # Center the table
+    term_width=$(tput cols)
+    table_width=40
+    left_padding=$(( (term_width - table_width) / 2 - 10))
+    padding_spaces=$(printf "%${left_padding}s" "")
+
+
 	#tests if data file exists
 	if [[ ! -f ./"$data_file" ]]; then
 		echo "$data_file not found." 
-		choiceU='y' 
+		choiceU='y' ` `
 		read -p "Press enter to exit"
 	fi 
 	
@@ -544,7 +381,6 @@ patron_update() {
 		
 		center_title "Update a Patron Details"
 		read -p "Enter Patron ID: ${normal}" patron_id
-		echo
 
 		length=$(echo -n "$patron_id" | wc -c)
 
@@ -564,16 +400,18 @@ patron_update() {
 			if [[ -n "$x" ]]; then
 				#read $x and assign fields to variables x(1-7)
 				IFS=':' read -r x1 x2 x3 x4 x5 x6 x7 <<< "$x"
-				echo "First Name : $x2"
-				echo "Last Name : $x3"
-				echo "Mobile Number : $x4"          
-				echo "Birth Date (DD-MM-YYYY) : $x5"
-				echo "Membership type : $x6"
-				echo "Joined Date (DD-MM-YYYY) : $x7"
-				
-				echo ; echo ; echo
+                printf '─%.0s' $(seq 1 $(tput cols))
+				echo "$padding_spaces First Name               : $x2"
+				echo "$padding_spaces Last Name                : $x3"
+				echo "$padding_spaces Mobile Number            : $x4"          
+				echo "$padding_spaces Birth Date (DD-MM-YYYY)  : $x5"
+				echo "$padding_spaces Membership type          : $x6"
+				echo "$padding_spaces Joined Date (DD-MM-YYYY) : $x7"
+                printf '─%.0s' $(seq 1 $(tput cols))
+ 
 				echo "Press (q) to return to Patron Maintenance Menu."
 				echo 
+                
 				read -p "Are you sure you want to ${bold}UPDATE ${normal}the above Patron Details? (y)es or (q)uit : " choiceU
 				echo
 				case "$choiceU" in 
@@ -596,10 +434,117 @@ patron_update() {
 	done 
 }
 
+
+#EDIT PATRON
+edit_patron(){
+	condition=997
+	condition2=886
+	
+	clear
+
+	center_title "Update a Patron Details"
+	echo "Patron ID: $x1"
+    printf '─%.0s' $(seq 1 $(tput cols))
+	
+	while [[ $condition -gt 996 && $condition -lt 1000 ]]; do
+		echo "Current Mobile Number: $x4"
+		read -p "Enter new Mobile Number: " x4_new
+		echo 
+					
+		if [[ -z "$x4_new" ]]; then
+            echo -n "${bold}Empty Mobile Number!" "${normal}Press Enter to try again."; read
+            tput cuu 2 # move cursor up 2 lines
+            tput ed    # clear everything below
+		elif [[ ! "$x4_new" =~ ^01[0-9]-[0-9]{7,8}$ ]]; then 
+            echo -n "${bold}Invalid Mobile Number Format!" "${normal}Press Enter to try again."; read
+            tput cuu 2 # move cursor up 2 lines
+            tput ed    # clear everything below
+		else 
+			echo -n "Mobile Number updated to $x4_new"
+            sleep 1.5
+			echo
+			condition=1
+		fi
+		
+		#Limit Errors not more than 3
+		if [[ $condition -eq 999 ]]; then
+			echo "Too many errors."
+			unset x4_new
+			condition2=1 # skip Date editing
+		fi
+		condition=$((condition + 1))
+	done
+
+    #refresh page				
+	clear
+	center_title "Update a Patron Details"
+	echo "Patron ID: $x1"
+    printf '─%.0s' $(seq 1 $(tput cols))
+
+	while [[ $condition2 -gt 885 && $condition2 -lt 889 ]]; do
+		echo "Current Birth Date: $x5"
+		read -p "Enter new Birth Date (MM-DD-YYYY): " x5_new
+		echo
+		
+		year_now=$(date +"%Y")
+		
+		IFS='-' read -r MM DD YYYY <<< "$x5_new"
+		if [[ -z "$x5_new" ]]; then
+            echo -n "${bold}Birth Date cannot be empty!" "${normal}Press Enter to try again."; read
+            tput cuu 4 # move cursor up 2 lines
+            tput ed    # clear everything below
+		elif [[ ! "$x5_new" =~ ^[0-9]{2}-[0-9]{2}-[0-9]{4} ]]; then
+            echo -n "${bold}Invalid Date Format!" "${normal}Press Enter to try again."; read
+            tput cuu 4 # move cursor up 2 lines
+            tput ed    # clear everything below
+		elif [[ $DD -gt 31 || $DD -lt 1 ]]; then
+            echo -n "${bold}Invalid Day Format!" "${normal}Press Enter to try again."; read
+            tput cuu 4 # move cursor up 2 lines
+            tput ed    # clear everything below
+		elif [[ $MM -gt 12 || $MM -lt 1 ]]; then
+            echo -n "${bold}Invalid Month Format!" "${normal}Press Enter to try again."; read
+            tput cuu 4 # move cursor up 2 lines
+            tput ed    # clear everything below
+		elif [[ $YYYY -gt $year_now || $YYYY -lt $(($year_now - 120)) ]]; then
+            echo -n "${bold}Invalid Year Format!" "${normal}Press Enter to try again."; read
+            tput cuu 4 # move cursor up 2 lines
+            tput ed    # clear everything below
+		elif [[ $MM -eq 02 && $DD -gt 29 ]]; then
+            echo -n "${bold}Invalid February Format!" "${normal}Press Enter to try again."; read
+            tput cuu 4 # move cursor up 2 lines
+            tput ed    # clear everything below
+		else
+			echo -n "Birth Date updated to $x5_new"
+            sleep 1.5
+			break
+		fi		
+		
+		#Limit Errors not more than 3
+		if [[ $condition2 -eq 888 ]]; then
+			echo "Too many errors."
+			unset x5_new
+			break 
+		fi
+		condition2=$((condition2 + 1))					
+	done
+	
+	if [[ -z "$x5_new" || -z "$x4_new" ]]; then
+		x5_new=$x5 ; x4_new=$x4 ; msg="unsuccessful."
+	else 
+		msg="successful."
+	fi
+						
+	updated_entry="${x1}:${x2}:${x3}:${x4_new}:${x5_new}:${x6}:${x7}"
+	sed -i "s/^$x/${updated_entry}/" ./"$data_file"
+	echo -ne "\nPatron Details update ${bold}$msg${normal}"		
+    sleep 1.5
+    main_menu
+}
+
 # SORT BY LAST NAME
 sort_last_name() {
 	choiceSL='n' #initialize choiceSL variable for while-loop
-	header="Patron ID:First Name:Last Name:Phone Number:Birth Date:Type:Joined Date"
+	header="Patron ID:First Name:Last Name:Mobile Number:Birth Date:Membership Type:Joined Date"
 	IFS=':' read -r h1 h2 h3 h4 h5 h6 h7 <<< "$header"
 
 	declare -a last_name
@@ -615,8 +560,7 @@ sort_last_name() {
   	while [ "$choiceSL" == 'n' ] ; do
     	clear
 
-    	echo "${bold}Patron Details Sorted by Last Name${normal}"
-    	echo ; echo 
+    	center_title "Patron Details Sorted by Last Name"
 
 		while IFS=':' read -r x1 x2 x3 x4 x5 x6 x7 ; do
         	#skip first line placeholder
@@ -635,12 +579,20 @@ sort_last_name() {
   			sorted_lname+=("$restored_lname")
  		done
 
-    	printf "%-15s %-20s %-11s %-15s %-12s %-9s %-12s\n" "$h3" "$h2" "$h1" "$h4" "$h5" "$h6" "$h7"
+        # Center the table
+        term_width=$(tput cols)
+        table_width=94
+        left_padding=$(( (term_width - table_width) / 2 - 2 ))
+        padding_spaces=$(printf "%${left_padding}s" "")
+        
+    	printf "%s${bold}%-20s %-20s %-15s %-12s %-9s %-12s\n" "$padding_spaces" "$h3" "$h2" "$h4" "$h7" "$h6"
+        printf "%s${normal}%s\n" "$padding_spaces" "───────────────────────────────────────────────────────────────────────────────────────"
+
 		
  		for sorted_ln in "${sorted_lname[@]}"; do
       		grep "^[^:]*:[^:]*:${sorted_ln}:" "$data_file" | while IFS=':' read -r f1 f2 f3 f4 f5 f6 f7; do
         	if [[ "$f1" != "PatronID" ]]; then
-          		printf "%-15s %-20s %-11s %-15s %-12s %-9s %-12s\n" "$f3" "$f2" "$f1" "$f4" "$f5" "$f6" "$f7"
+          		printf "%s${normal}%-20s %-20s %-15s %-12s %-9s %-12s\n" "$padding_spaces" "$f3" "$f2" "$f4" "$f7" "$f6" 
         	fi
       		done
     	done
@@ -653,38 +605,173 @@ sort_last_name() {
     case "$choiceSL" in
       Y | y)
         # Output the header and sorted data to a file
-        { printf "%-15s %-20s %-11s %-15s %-12s %-9s %-12s\n" "$h3" "$h2" "$h1" "$h4" "$h5" "$h6" "$h7" 
+        { 
+        printf "%-15s %-20s %-11s %-15s %-12s %-16s %-12s\n" "$h3" "$h2" "$h1" "$h4" "$h5" "$h6" "$h7" 
+        echo -e "---------------------------------------------------------------------------------------------------------" 
            
         for sorted_ln in "${sorted_lname[@]}"; do
       		grep "^[^:]*:[^:]*:${sorted_ln}:" ./"$data_file" | while IFS=':' read -r f1 f2 f3 f4 f5 f6 f7; do
        		if [[ "$f1" != "PatronID" ]]; then
-        		printf "%-15s %-20s %-11s %-15s %-12s %-9s %-12s\n" "$f3" "$f2" "$f1" "$f4" "$f5" "$f6" "$f7"
+        		printf "%-15s %-20s %-11s %-15s %-12s %-16s %-12s\n" "$f3" "$f2" "$f1" "$f4" "$f5" "$f6" "$f7"
         	fi
       		done 
       	done 
-      	} > ./sortedlnoutput.txt 
-      	;;
+      	} > ./SortByLastName.txt 
+
+        echo -n "Exported to SortByLastName.txt successfully."
+        sleep 1.5
+        main_menu;;
       Q | q)
-        main_menu;; ####
+        main_menu;; 
       *)
-        choiceSL='y';;
+        echo -n "${bold}Invalid Choice!" "${normal}Press Enter to try again."; read
+        tput cuu 2 # move cursor up 2 lines
+        tput ed    # clear everything below
+        sort_last_name ;;
     esac
   done
 }
+
+
+## SORT USER BY ID
+sortById() {
+    mapfile -t patron < patron.txt #read the file from patron into array form
+    center_title "Patron Details Sorted by Patron ID"
+
+    # Center the table
+    term_width=$(tput cols)
+    table_width=73  
+    left_padding=$(( (term_width - table_width) / 2 - 4))
+    padding_spaces=$(printf "%${left_padding}s" "")
+
+    # Print header with padding
+    printf "%s${bold}%-10s %-17s %-20s %-15s %-12s\n" "$padding_spaces" "Patron ID" "Last Name" "First Name" "Mobile Number" "Birth Date"
+    printf "%s${bold}%s\n" "$padding_spaces" "─────────────────────────────────────────────────────────────────────────────"
+
+    outputFile="SortByID.txt"
+
+    # Sort the array by PatronID (first field) using sort
+    sorted=$(printf "%s\n" "${patron[@]:1}"| sort -t ':' -k1)
+
+    # Print data rows with padding
+    while IFS=':' read -r id fname lname mobile dob _ _ ; 
+    do
+        printf "%s${normal}%-10s %-17s %-20s %-15s %-12s\n" "$padding_spaces" "$id" "$lname" "$fname" "$mobile" "$dob"
+    done <<< "$sorted"
+
+    echo
+    echo -e "Press (q) to return to Patron Maintenance Menu.\n"
+    echo -n "Would you like to export the report as ASCII text file? (y)es (q)uit: " ; read -r response
+
+    if [ $response = "y" ] || [ $response = "Y" ];
+    then
+        printf "%-10s %-17s %-20s %-15s %-10s\n" "Patron ID" "Last Name" "First Name" "Mobile Number" "Joined Date" > "$outputFile"
+        echo -e "-----------------------------------------------------------------------------" >>  "$outputFile"
+
+        ##Sort the array by PatronID (first field) using sort
+        sorted=$(printf "%s\n" "${patron[@]:1}"| sort -t ':' -k1 )
+
+        while IFS=':' read -r id fname lname mobile dob _ _ ; 
+        do
+            printf "%-10s %-17s %-20s %-15s %-10s\n" "$id" "$lname" "$fname" "$mobile" "$dob" >> "$outputFile"
+        done <<< "$sorted"
+
+        echo -n "Exported to $outputFile successfully."
+        sleep 1.5
+        main_menu
+
+    elif [ $response = "q" ] || [ $response = "Q" ];
+    then 
+        main_menu;
+    else
+        echo -n "${bold}Invalid Choice!" "${normal}Press Enter to try again."; read
+        tput cuu 2 # move cursor up 2 lines
+        tput ed    # clear everything below
+        sortById ;
+    fi
+
+}
+
+## SORT BY DATE
+sortByDate() {
+    #read the file from patron into array form (the -t is to remove the new line occurence or it will mess up the indexes)
+    mapfile -t patron < patron.txt
+    center_title "Patron Details Sorted by Joined Date"
+
+    # Center the table
+    term_width=$(tput cols)
+    table_width=73 
+    left_padding=$(( (term_width - table_width) / 2 - 4))
+    padding_spaces=$(printf "%${left_padding}s" "")
+
+    # Print header with padding
+    printf "%s${bold}%-10s %-17s %-20s %-15s %-10s\n" "$padding_spaces" "Patron ID" "Last Name" "First Name" "Mobile Number" "Joined Date"
+    printf "%s${normal}%s\n" "$padding_spaces" "─────────────────────────────────────────────────────────────────────────────"
+
+    outputFile="SortByDate.txt"
+
+    # Sort the data and format it
+    sorted_data=$(printf "%s\n" "${patron[@]:1}" | sort -t':' -k7.7,7.10n -k7.1,7.2n -k7.4,7.5n )
+        
+    # Print data rows with padding
+    while IFS=':' read -r id fname lname mobile dob type joined; 
+    do
+        printf "%s${normal}%-10s %-17s %-20s %-15s %-12s\n" "$padding_spaces" "$id" "$lname" "$fname" "$mobile" "$joined"
+    done <<< "$sorted_data"
+
+    echo
+    echo -e "Press (q) to return to Patron Maintenance Menu.\n"
+    echo -n "Would you like to export the report as ASCII text file? (y)es (q)uit: " ; read -r response
+
+    if [ $response = "y" ] || [ $response = "Y" ];
+    then
+        printf "%-10s %-17s %-20s %-15s %-12s\n" "Patron ID" "Last Name" "First Name" "Mobile Number" "Joined Date" > "$outputFile"
+        echo -e "-----------------------------------------------------------------------------" >>  "$outputFile"
+
+        ##Sort the array by PatronID (first field) using sort based on MM/DD/YYYY
+        sorted_data=$(printf "%s\n" "${patron[@]:1}" | sort -t':' -k7.7,7.10n -k7.1,7.2n -k7.4,7.5n )
+
+        while IFS=':' read -r id fname lname mobile dob type joined ; 
+        do
+            printf "%-10s %-17s %-20s %-15s %-12s\n" "$id" "$lname" "$fname" "$mobile" "$joined" >> "$outputFile"
+        done <<< "$sorted_data"
+
+        echo -ne "Exported to $outputFile successfully."
+        sleep 1.5
+        main_menu
+
+    elif [ $response = "q" ] || [ $response = "Q" ];
+    then 
+        main_menu
+    else
+        echo -n "${bold}Invalid Choice!" "${normal}Press Enter to try again." ; read
+        tput cuu 2 # move cursor up 2 lines
+        tput ed    # clear everything below
+        sortByDate
+    fi
+
+}
+
 
 ## MAIN MENU FUNCTION
 main_menu () {
     clear
     center_title "Patron Maintenance Menu"
 
-    echo " A - Add New Patron Details"
-    echo " S - Search a Patron (by Patron ID)"
-    echo " U - Update a Patron Details"
-    echo " D - Delete a Patron Details"
-    echo " L - Sort Patrons by Last Name"
-    echo " P - Sort Patrons by Patron ID"
-    echo " J - Sort Patrons by Joined Date (Newest to Oldest)"
-    echo " Q - Exit from Program"
+    # Center the table
+    term_width=$(tput cols)
+    table_width=50
+    left_padding=$(( (term_width - table_width) / 2))
+    padding_spaces=$(printf "%${left_padding}s" "")
+
+    echo "$padding_spaces A - Add New Patron Details"
+    echo "$padding_spaces S - Search a Patron (by Patron ID)"
+    echo "$padding_spaces U - Update a Patron Details"
+    echo "$padding_spaces D - Delete a Patron Details"
+    echo "$padding_spaces L - Sort Patrons by Last Name"
+    echo "$padding_spaces P - Sort Patrons by Patron ID"
+    echo "$padding_spaces J - Sort Patrons by Joined Date (Newest to Oldest)"
+    echo "$padding_spaces Q - Exit from Program"
     echo
     echo -n "Please select a choice >> " ; read choice
 
